@@ -40,6 +40,7 @@ exports.sourceNodes = async edge => {
 		internal: {
 			content: markdown,
 			type: 'MarkdownRemote',
+			mediaType: 'text/markdown',
 			contentDigest: edge.createContentDigest(request.data)
 		}
 	}
@@ -47,9 +48,8 @@ exports.sourceNodes = async edge => {
 }
 
 exports.onCreateNode = edge => {
-	const targets = ['MarkdownRemark', 'MarkdownRemote']
-	if (targets.some(type => edge.node.internal.type === type)) {
-		console.log(edge.node)
+	if (edge.node.internal.type === 'MarkdownRemark') {
+		console.log('\n', edge.node, '\n')
 		/* const params = {
 			node: edge.node,
 			getNode: edge.getNode,
