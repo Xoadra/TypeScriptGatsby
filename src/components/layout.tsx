@@ -36,7 +36,7 @@ export default ({ children }: Props) => {
 	return (
 		<>
 			<Header siteTitle={data.site.siteMetadata.title} />
-			<div style={{ maxWidth: 960, padding: '0 1.0875rem 1.45rem', margin: '0 auto'}}>
+			<div style={{ maxWidth: 960, padding: '0 1.0875rem 1.45rem', margin: '0 auto' }}>
 				<main>{children}</main>
 				<footer>
 					© {new Date().getFullYear()}, Built with
