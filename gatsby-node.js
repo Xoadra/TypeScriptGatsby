@@ -16,6 +16,10 @@ const axios = require('axios')
 
 
 
+exports.onPreInit = () => {
+	require('dotenv').config()
+}
+
 exports.onCreateWebpackConfig = ({ stage, actions }, options) => {
 	if (stage === 'develop') {
 		actions.setWebpackConfig({
@@ -27,24 +31,39 @@ exports.onCreateWebpackConfig = ({ stage, actions }, options) => {
 }
 
 exports.sourceNodes = async edge => {
-	const user = 'junior-dev-struggle-bus'
-	const source = 'juniordevstrugglebus/contents/README.md'
-	const api = `https://api.github.com/repos/${user}/${source}`
-	const headers = { 'Accept': 'application/vnd.github.v3+json' }
-	const request = await axios.get(api, { headers })
-	const markdown = Buffer.from(request.data.content, 'base64').toString('utf-8')
+	const url = 'https://api.github.com/graphql'
+	const headers = { 'Authorization': `Bearer ${process.env.GITHUB_API_TOKEN}` }
+	const query = {
+		query: `query($owner: String!, $name: String!, $expression: String!) {
+			repository(owner: $owner, name: $name) {
+				object(expression: $expression) {
+					... on Blob {
+						oid
+						text
+					}
+				}
+			}
+		}`,
+		variables: {
+			owner: 'junior-dev-struggle-bus',
+			name: 'juniordevstrugglebus',
+			expression: 'master:README.md'
+		}
+	}
+	const graphql = await axios.post(url, query, { headers })
+	const { text, oid } = graphql.data.data.repository.object
 	const metadata = {
-		id: edge.createNodeId(request.data.sha),
+		id: edge.createNodeId(oid),
 		children: [],
 		parent: null,
 		internal: {
-			content: markdown,
+			content: text,
 			type: 'MarkdownRemote',
 			mediaType: 'text/markdown',
-			contentDigest: edge.createContentDigest(request.data)
+			contentDigest: edge.createContentDigest(graphql.data)
 		}
 	}
-	edge.actions.createNode({ ...metadata, ...request.data })
+	edge.actions.createNode({ ...metadata, ...graphql.data })
 }
 
 exports.onCreateNode = edge => {
@@ -63,5 +82,6 @@ exports.onCreateNode = edge => {
 		}) */
 	}
 }
+
 
 
