@@ -20,9 +20,9 @@ exports.onPreInit = () => {
 	require('dotenv').config()
 }
 
-exports.onCreateWebpackConfig = ({ stage, actions }, options) => {
-	if (stage === 'develop') {
-		actions.setWebpackConfig({
+exports.onCreateWebpackConfig = (edge, options) => {
+	if (edge.stage === 'develop') {
+		edge.actions.setWebpackConfig({
 			plugins: [
 				new TypeScriptCheckerWebpackPlugin({ ...options })
 			]
@@ -83,5 +83,11 @@ exports.onCreateNode = edge => {
 	}
 }
 
+exports.onCreatePage = async edge => {
+	if (edge.page.path.match(/^\/nexus/)) {
+		edge.page.matchPath = '/within/*'
+		edge.actions.createPage(edge.page)
+	}
+}
 
 

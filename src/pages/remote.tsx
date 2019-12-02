@@ -22,7 +22,7 @@ export default (props: Props) => (
 		<SEO title="Remote"/>
 		<h1>Hi from the remote document</h1>
 		<p>Welcome to the Remote Page</p>
-		<Link to="/">Go back to Home Page</Link>
+		<Link to="/">Home</Link>
 		<Document html={props.data.markdownRemark.html}/>
 	</Layout>
 )

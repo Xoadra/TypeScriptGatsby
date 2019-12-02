@@ -24,7 +24,9 @@ export default (props: Props) => (
 		<h1>Hi people</h1>
 		<p>Welcome to your new Gatsby site.</p>
 		<p>Now go build something great.</p>
-		<Link to="/remote">Go to Remote Page</Link>
+		<Link to="/remote">Remote</Link>
+		<Link to="/within/static">Static</Link>
+		<Link to="/within/dynamic">Dynamic</Link>
 		<Document html={props.data.markdownRemark.html}/>
 		<div style={{ maxWidth: '300px', marginBottom: '1.45rem' }}>
 			<Image/>
