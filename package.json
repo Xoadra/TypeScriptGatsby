@@ -13,6 +13,7 @@
 		"test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\" && exit 1"
 	},
 	"dependencies": {
+		"@types/netlify-identity-widget": "^1.4.1",
 		"@types/react": "^16.9.13",
 		"@types/react-dom": "^16.9.4",
 		"@types/react-helmet": "^5.0.14",
@@ -28,6 +29,7 @@
 		"gatsby-transformer-remark": "^2.6.38",
 		"gatsby-transformer-sharp": "^2.3.5",
 		"netlify-auth-providers": "^1.0.0-alpha5",
+		"netlify-identity-widget": "^1.5.6",
 		"react": "^16.12.0",
 		"react-dom": "^16.12.0",
 		"react-helmet": "^5.2.1"
