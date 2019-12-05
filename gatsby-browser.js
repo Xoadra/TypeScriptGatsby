@@ -14,7 +14,7 @@
 import React from 'react'
 import netlifyIdentity from 'netlify-identity-widget'
 
-import { AuthProvider } from './src/services/auth'
+import { AuthProvider } from './src/services/authcontext'
 
 
 

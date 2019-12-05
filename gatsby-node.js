@@ -88,6 +88,10 @@ exports.onCreatePage = async edge => {
 		edge.page.matchPath = '/within/*'
 		edge.actions.createPage(edge.page)
 	}
+	if (edge.page.path.match(/^\/auth/)) {
+		edge.page.matchPath = '/auth/*'
+		edge.actions.createPage(edge.page)
+	}
 }
 
 

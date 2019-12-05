@@ -25,6 +25,7 @@ export default (props: Props) => (
 		<p>Welcome to your new Gatsby site.</p>
 		<p>Now go build something great.</p>
 		<Link to="/remote">Remote</Link>
+		<Link to="/auth">Auth</Link>
 		<Link to="/within/static">Static</Link>
 		<Link to="/within/dynamic">Dynamic</Link>
 		<Document html={props.data.markdownRemark.html}/>
@@ -42,6 +43,5 @@ export const query = graphql`
 		}
 	}
 `
-
 
 
