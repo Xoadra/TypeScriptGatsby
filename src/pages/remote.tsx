@@ -2,15 +2,15 @@
 
 
 
-import React, { MouseEvent, Dispatch, useState } from 'react'
+import React, { MouseEvent, useContext } from 'react'
 import { Link, graphql } from 'gatsby'
 import Authenticator from 'netlify-auth-providers'
 
 import Layout from '../components/layout'
 import SEO from '../components/seo'
 import Document from '../components/document'
+import AuthContext from '../services/auth'
 import { Remark } from '../types/remark'
-import { netlifyAuth } from '../services/auth'
 
 
 
@@ -20,8 +20,9 @@ interface Props {
 
 
 export default (props: Props) => {
-	const [user, setUser]: [object | null, Dispatch<object | null>] = useState(netlifyAuth.user)
-	console.log(user)
+	const authenticator = useContext(AuthContext)
+	const { user, setUser } = authenticator
+	console.log(user, authenticator)
 	return (
 		<Layout>
 			<SEO title="Remote"/>
@@ -30,11 +31,11 @@ export default (props: Props) => {
 			<Link to="/">Home</Link>
 			<a href="#" onClick={(event: MouseEvent) => {
 				event.preventDefault()
-				netlifyAuth.authenticate((user: object) => setUser(user))
+				authenticator.authenticate((user: any) => setUser(user))
 			}}>Login</a>
 			<a href="#" onClick={(event: MouseEvent) => {
 				event.preventDefault()
-				netlifyAuth.signout((user: object) => setUser(user))
+				authenticator.signout((user: any) => setUser(user))
 			}}>Logout</a>
 			<a href="#" onClick={(event: MouseEvent) => {
 				event.preventDefault()
@@ -61,5 +62,6 @@ export const query = graphql`
 		}
 	}
 `
+
 
 
