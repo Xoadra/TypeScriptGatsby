@@ -34,6 +34,7 @@ export default (props: Props) => {
 				<p>
 					You are not logged in.{' '}
 					<button onClick={() => {
+						// Page refresh bugs out the layout if logging in from public page
 						authenticator.authenticate(() => setRedirectToReferrer(true))
 					}}>Log In</button>
 				</p>
@@ -56,6 +57,5 @@ export default (props: Props) => {
 		</Layout>
 	)
 }
-
 
 
