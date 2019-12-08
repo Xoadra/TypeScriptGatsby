@@ -5,12 +5,12 @@
 import React, { Dispatch, useState, useContext } from 'react'
 import { Router, Redirect } from '@reach/router'
 import { Link } from 'gatsby'
-import { User } from 'netlify-identity-widget'
 
 import Layout from '../components/layout'
 import SEO from '../components/seo'
 import Public from './auth/public'
 import Private from './auth/private'
+import GitHub from './auth/github'
 import AuthContext from '../services/authcontext'
 import { Location } from '../types/location'
 import { NetlifyAuth } from '../types/netlifyauth'
@@ -26,7 +26,7 @@ interface Props {
 export default (props: Props) => {
 	const authenticator: NetlifyAuth = useContext(AuthContext)
 	const [redirectToReferrer, setRedirectToReferrer]: [boolean, Dispatch<any>] = useState(false)
-	const { user, isAuthenticated }: { user: User | null, isAuthenticated: boolean } = authenticator
+	const { isAuthenticated }: { isAuthenticated: boolean } = authenticator
 	return redirectToReferrer ? <Redirect to="/auth"/> : (
 		<Layout>
 			<SEO title="Auth"/>
@@ -50,9 +50,11 @@ export default (props: Props) => {
 			<Link to="/auth">Auth</Link>
 			<Link to="/auth/public">Public</Link>
 			<Link to="/auth/private">Private</Link>
+			<Link to="/auth/github">GitHub</Link>
 			<Router>
 				<Public path="/auth/public"/>
 				<Private path="/auth/private" isAuthenticated={isAuthenticated}/>
+				<GitHub path="/auth/github"/>
 			</Router>
 		</Layout>
 	)

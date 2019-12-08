@@ -39,9 +39,9 @@ export const AuthProvider = (props: any) => {
 			callback(user)
 		})
 	}
-	const netlifyAuth: NetlifyAuth = { isAuthenticated, user, authenticate, signout }
+	const netlifyAuth: NetlifyAuth = { user, isAuthenticated, authenticate, signout }
 	return (
-		<Provider value={{ ...netlifyAuth }}>
+		<Provider value={netlifyAuth}>
 			{props.children}
 		</Provider>
 	)

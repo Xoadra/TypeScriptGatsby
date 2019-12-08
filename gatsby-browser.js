@@ -15,6 +15,7 @@ import React from 'react'
 import netlifyIdentity from 'netlify-identity-widget'
 
 import { AuthProvider } from './src/services/authcontext'
+import { GitHubProvider } from './src/services/githubcontext'
 
 
 
@@ -24,8 +25,11 @@ netlifyIdentity.init()
 
 export const wrapRootElement = source => (
 	<AuthProvider>
-		{source.element}
+		<GitHubProvider>
+			{source.element}
+		</GitHubProvider>
 	</AuthProvider>
 )
+
 
 

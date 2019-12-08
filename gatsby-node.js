@@ -24,6 +24,8 @@ exports.onCreateWebpackConfig = (edge, options) => {
 	if (edge.stage === 'develop') {
 		edge.actions.setWebpackConfig({
 			plugins: [
+				// Assign custom environment variables here
+				edge.plugins.define({}),
 				new TypeScriptCheckerWebpackPlugin({ ...options })
 			]
 		})

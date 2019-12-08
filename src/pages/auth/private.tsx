@@ -16,6 +16,7 @@ interface Props {
 
 export default (props: Props) => {
 	const user: User | null = netlifyIdentity.currentUser()
+	console.log('USER', user)
 	return !props.isAuthenticated ? <Redirect to="/auth" noThrow/> : (
 		<div>
 			<h3>Private Page</h3>
@@ -23,5 +24,6 @@ export default (props: Props) => {
 		</div>
 	)
 }
+
 
 
