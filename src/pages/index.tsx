@@ -24,6 +24,7 @@ export default (props: Props) => (
 		<h1>Hi people</h1>
 		<p>Welcome to your new Gatsby site.</p>
 		<p>Now go build something great.</p>
+		<a href="/identity">Identity</a>
 		<Link to="/remote">Remote</Link>
 		<Link to="/auth">Auth</Link>
 		<Link to="/within/static">Static</Link>
@@ -43,5 +44,6 @@ export const query = graphql`
 		}
 	}
 `
+
 
 

@@ -29,6 +29,8 @@ export const AuthProvider = (props: any) => {
 			setUser(user)
 			callback(user)
 			setIsAuthenticated(true)
+			// Redirect to the CMS website after login
+			location.href = '/identity'
 		})
 	}
 	const signout = (callback: any): void => {
