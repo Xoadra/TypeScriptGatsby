@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"allowJs": true,
+		"allowJs": false,
 		"allowSyntheticDefaultImports": true,
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
@@ -16,9 +16,13 @@
 		"target": "esnext",
 		"typeRoots": [
 			"node_modules/@types"
-		],
+		]
 	},
 	"include": [
 		"./src/**/*"
+	],
+	"exclude": [
+		"./node_modules/**/*",
+		"./src/admin/*"
 	]
 }

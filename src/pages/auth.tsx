@@ -15,6 +15,8 @@ import AuthContext from '../services/authcontext'
 import { Location } from '../types/location'
 import { NetlifyAuth } from '../types/netlifyauth'
 
+//import { NewGitHubBackend } from '../admin/backend/github'
+
 
 
 interface Props {
@@ -27,6 +29,7 @@ export default (props: Props) => {
 	const authenticator: NetlifyAuth = useContext(AuthContext)
 	const [redirectToReferrer, setRedirectToReferrer]: [boolean, Dispatch<any>] = useState(false)
 	const { isAuthenticated }: { isAuthenticated: boolean } = authenticator
+	//console.log('\nGITHUB\n\n', NewGitHubBackend, '\n\n')
 	return redirectToReferrer ? <Redirect to="/auth"/> : (
 		<Layout>
 			<SEO title="Auth"/>
@@ -59,5 +62,6 @@ export default (props: Props) => {
 		</Layout>
 	)
 }
+
 
 
