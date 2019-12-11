@@ -17,7 +17,8 @@ const axios = require('axios')
 
 
 exports.onPreInit = () => {
-	require('dotenv').config()
+	// Only necessary for local development when using Gatsby's CLI
+	require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
 }
 
 exports.onCreateWebpackConfig = (edge, options) => {
@@ -95,5 +96,6 @@ exports.onCreatePage = async edge => {
 		edge.actions.createPage(edge.page)
 	}
 }
+
 
 
