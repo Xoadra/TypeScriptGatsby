@@ -71,7 +71,7 @@ exports.sourceNodes = async edge => {
 
 exports.onCreateNode = edge => {
 	if (edge.node.internal.type === 'MarkdownRemark') {
-		console.log('\n', edge.node, '\n')
+		//console.log('\n', edge.node, '\n')
 		/* const params = {
 			node: edge.node,
 			getNode: edge.getNode,
