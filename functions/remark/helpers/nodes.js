@@ -3,7 +3,7 @@
 
 
 const _ = require('lodash')
-const { store } = require('./redux/store')
+/* const { store } = require('./redux/store') */
 
 
 
@@ -27,7 +27,8 @@ switch (backend) {
 
 
 module.exports = { ...nodesDb, runQuery, backend, loadNodeContent: node => {
-	if (_.isString(node.internal.content)) {
+	return node.internal.content
+	/* if (_.isString(node.internal.content)) {
 		return Promise.resolve(node.internal.content)
 	} else {
 		return new Promise(resolve => {
@@ -42,8 +43,7 @@ module.exports = { ...nodesDb, runQuery, backend, loadNodeContent: node => {
 				resolve(content)
 			})
 		})
-	}
+	} */
 }}
-
 
 

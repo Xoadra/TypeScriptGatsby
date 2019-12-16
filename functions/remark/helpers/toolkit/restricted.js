@@ -75,27 +75,6 @@ const mapAvailableActionsToAPIs = restrictions => {
 }
 
 
-const availableActionsByAPI = mapAvailableActionsToAPIs({
-	createFieldExtension: {
-		[ALLOWED_IN]: ['sourceNodes', 'createSchemaCustomization']
-	},
-	createTypes: {
-		[ALLOWED_IN]: ['sourceNodes', 'createSchemaCustomization'],
-		[DEPRECATED_IN]: ['onPreInit', 'onPreBootstrap']
-	},
-	createResolverContext: {
-		[ALLOWED_IN]: ['createSchemaCustomization']
-	},
-	addThirdPartySchema: {
-		[ALLOWED_IN]: ['sourceNodes', 'createSchemaCustomization'],
-		[DEPRECATED_IN]: ['onPreInit', 'onPreBootstrap']
-	},
-	printTypeDefinitions: {
-		[ALLOWED_IN]: ['createSchemaCustomization']
-	}
-})
-
-
 const addThirdPartySchema = ({ schema }, plugin, traceId) => {
 	return {
 		type: 'ADD_THIRD_PARTY_SCHEMA',
@@ -199,7 +178,24 @@ const actions = {
 }
 
 
-module.exports = { actions, availableActionsByAPI }
-
+module.exports = { actions, availableActionsByAPI: mapAvailableActionsToAPIs({
+	createFieldExtension: {
+		[ALLOWED_IN]: ['sourceNodes', 'createSchemaCustomization']
+	},
+	createTypes: {
+		[ALLOWED_IN]: ['sourceNodes', 'createSchemaCustomization'],
+		[DEPRECATED_IN]: ['onPreInit', 'onPreBootstrap']
+	},
+	createResolverContext: {
+		[ALLOWED_IN]: ['createSchemaCustomization']
+	},
+	addThirdPartySchema: {
+		[ALLOWED_IN]: ['sourceNodes', 'createSchemaCustomization'],
+		[DEPRECATED_IN]: ['onPreInit', 'onPreBootstrap']
+	},
+	printTypeDefinitions: {
+		[ALLOWED_IN]: ['createSchemaCustomization']
+	}
+})}
 
 

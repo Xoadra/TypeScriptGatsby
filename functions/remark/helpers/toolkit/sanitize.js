@@ -29,7 +29,7 @@ const isTypeSupported = data => {
 }
 
 
-const sanitizeNode = (data, isNode = true, path = new Set()) => {
+module.exports = (data, isNode = true, path = new Set()) => {
 	const isPlainObject = _.isPlainObject(data)
 	if (isPlainObject || _.isArray(data)) {
 		path.add(data)
@@ -59,9 +59,5 @@ const sanitizeNode = (data, isNode = true, path = new Set()) => {
 		return data
 	}
 }
-
-
-module.exports = sanitizeNode
-
 
 

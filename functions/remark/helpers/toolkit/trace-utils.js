@@ -8,10 +8,12 @@ const chalk = require('chalk')
 const stackTrace = require('stack-trace')
 const { codeFrameColumns } = require('@babel/code-frame')
 
-const gatsbyLocation = path.dirname(require.resolve('gatsby/package.json'))
+
+
 const reduxThunkLocation = path.dirname(require.resolve('redux-thunk/package.json'))
 const reduxLocation = path.dirname(require.resolve('redux/package.json'))
 
+const gatsbyLocation = path.dirname(require.resolve('./gatsby-package.json'))
 
 
 const nodePaths = [

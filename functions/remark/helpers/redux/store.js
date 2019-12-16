@@ -35,16 +35,18 @@ const readState = () => {
 }
 
 
-const multi = ({ dispatch }) => next => action =>
+const multi = ({ dispatch }) => (next => (action => (
 	Array.isArray(action) ? action.filter(Boolean).map(dispatch) : next(action)
+)))
 
 
-const configureStore = initialState => Redux.createStore(
-	Redux.combineReducers({ ...reducers }),
-	initialState,
-	Redux.applyMiddleware(thunk, multi)
-)
-
+const configureStore = initialState => {
+	return Redux.createStore(
+		Redux.combineReducers({ ...reducers }),
+		initialState,
+		Redux.applyMiddleware(thunk, multi)
+	)
+}
 
 const store = configureStore(readState())
 
@@ -57,15 +59,15 @@ const saveState = () => {
 		'componentDataDependencies',
 		'components',
 		'staticQueryComponents',
-		'webpackCompilationHash',
+		'webpackCompilationHash'
 	])
 	return writeToCache(pickedState)
 }
 
 
 store.subscribe(() => {
-  const lastAction = store.getState().lastAction
-  emitter.emit(lastAction.type, lastAction)
+	const lastAction = store.getState().lastAction
+	emitter.emit(lastAction.type, lastAction)
 })
 
 

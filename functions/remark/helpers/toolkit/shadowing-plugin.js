@@ -17,7 +17,7 @@ const pathWithoutExtension = fullPath => {
 
 class GatsbyThemeComponentShadowingResolverPlugin {
 	
-	cache = {}
+	//cache = {}
 	
 	
 	constructor({ projectRoot, themes, extensions }) {

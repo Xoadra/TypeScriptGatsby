@@ -23,14 +23,10 @@ const posixJoinWithLeadingSlash = paths => (
 )
 
 
-const withBasePath = (basePath) => {
-	return (...paths) => joinPath(basePath, ...paths)
-}
+const withBasePath = (basePath) => (...paths) => joinPath(basePath, ...paths)
 
 
-const withTrailingSlash = (basePath) => {
-	return `${basePath}/`
-}
+const withTrailingSlash = (basePath) => `${basePath}/`
 
 
 const getCommonDir = (path1, path2) => {

@@ -10,11 +10,13 @@ const { isGatsbyType } = require('./type-builders')
 
 
 
-const isASTDocument = typeOrTypeDef => (
-	typeof typeOrTypeDef === 'object' &&
-	typeOrTypeDef.kind &&
-	GraphQLASTNodeKind.DOCUMENT === typeOrTypeDef.kind
-)
+const isASTDocument = typeOrTypeDef => {
+	return (
+		typeof typeOrTypeDef === 'object' &&
+		typeOrTypeDef.kind &&
+		GraphQLASTNodeKind.DOCUMENT === typeOrTypeDef.kind
+	)
+}
 
 
 const parseTypeDef = typeOrTypeDef => {

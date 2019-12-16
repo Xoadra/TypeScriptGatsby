@@ -55,13 +55,13 @@ const findChildren = initialChildren => {
 	while (queue.length > 0) {
 		const currentChild = getNode(queue.pop())
 		if (!currentChild || traversedNodes.has(currentChild.id)) {
-		continue
+			continue
 		}
 		traversedNodes.add(currentChild.id)
 		const newChildren = currentChild.children
 		if (_.isArray(newChildren) && newChildren.length > 0) {
-		children.push(...newChildren)
-		queue.push(...newChildren)
+			children.push(...newChildren)
+			queue.push(...newChildren)
 		}
 	}
 	return children
@@ -563,22 +563,24 @@ const createNodeHelper = (node, plugin, actionOptions = {}) => {
 }
 
 
-const createNode = (...args) => dispatch => {
-	const actions = createNodeHelper(...args)
-	dispatch(actions)
-	const createNodeAction = (Array.isArray(actions) ? actions : [actions]).find(
-		action => action.type === 'CREATE_NODE'
-	)
-	if (!createNodeAction) {
-		return undefined
+const createNode = (...args) => {
+	return dispatch => {
+		const actions = createNodeHelper(...args)
+		dispatch(actions)
+		const createNodeAction = (Array.isArray(actions) ? actions : [actions]).find(
+			action => action.type === 'CREATE_NODE'
+		)
+		if (!createNodeAction) {
+			return undefined
+		}
+		const { payload: node, traceId, parentSpan } = createNodeAction
+		return apiRunnerNode('onCreateNode', {
+			node,
+			traceId,
+			parentSpan,
+			traceTags: { nodeId: node.id, nodeType: node.internal.type }
+		})
 	}
-	const { payload: node, traceId, parentSpan } = createNodeAction
-	return apiRunnerNode('onCreateNode', {
-		node,
-		traceId,
-		parentSpan,
-		traceTags: { nodeId: node.id, nodeType: node.internal.type }
-	})
 }
 
 

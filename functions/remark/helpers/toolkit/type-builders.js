@@ -60,11 +60,13 @@ const buildScalarType = config => {
 }
 
 
-const isGatsbyType = something => (
-	typeof something === 'object' &&
-	something.kind &&
-	GatsbyGraphQLTypeKind[something.kind]
-)
+const isGatsbyType = something => {
+	return (
+		typeof something === 'object' &&
+		something.kind &&
+		GatsbyGraphQLTypeKind[something.kind]
+	)
+}
 
 
 module.exports = {

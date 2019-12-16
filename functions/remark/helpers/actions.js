@@ -2,9 +2,9 @@
 
 
 
-const { bindActionCreators } = require('redux')
+/* const { bindActionCreators } = require('redux') */
 
-const { store } = require('./redux/store')
+/* const { store } = require('./redux/store') */
 const { actions: internalActions } = require('./toolkit/internal')
 const { actions: publicActions } = require('./toolkit/public')
 const { actions: restrictedActions, availableActionsByAPI } = require('./toolkit/restricted')
@@ -25,7 +25,7 @@ module.exports = {
 	restrictedActionsAvailableInAPI: availableActionsByAPI,
 	actions,
 	// Deprecated, remove in v3
-	boundActionCreators: bindActionCreators(actions, store.dispatch)
+	//boundActionCreators: bindActionCreators(actions, store.dispatch)
 }
 
 

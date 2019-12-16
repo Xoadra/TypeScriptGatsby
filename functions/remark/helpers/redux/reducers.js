@@ -13,6 +13,9 @@ const { oneLine } = require('common-tags')
 /* const reduxNodes = require('./nodes') */
 /* const lokiNodes = require('../../db/loki/nodes').reducer */
 const componentMachine = require('./page-component')
+const { NodeInterfaceFields } = require('./node-interface')
+const { addNode, addNodes, deleteNode, ignore, disable } = require('./inference-metadata')
+const { typesWithoutInference } = require('../toolkit/type-defs')
 const { gatsbyConfigSchema } = require('./joi')
 
 
@@ -95,6 +98,88 @@ const reduxNodesByType = (state = new Map(), action) => {
 					}
 					return false
 				})
+			})
+			return state
+		}
+		default:
+			return state
+	}
+}
+
+
+const incrementalReducer = (state = {}, action) => {
+	const initialTypeMetadata = () => {
+		return {
+			ignoredFields: new Set([
+				...NodeInterfaceFields,
+				'$loki',
+				'__gatsby_resolved'
+			])
+		}
+	}
+	switch (action.type) {
+		case 'CREATE_TYPES': {
+			const typeDefs = Array.isArray(action.payload)
+				? action.payload
+				: [action.payload]
+			const ignoredTypes = typeDefs.reduce(typesWithoutInference, [])
+			ignoredTypes.forEach(type => {
+				state[type] = ignore(state[type] || initialTypeMetadata())
+			})
+			return state
+		}
+		case 'BUILD_TYPE_METADATA': {
+			const { nodes, typeName } = action.payload
+			state[typeName] = addNodes(initialTypeMetadata(), nodes)
+			return state
+		}
+		case 'DISABLE_TYPE_INFERENCE': {
+			const types = action.payload
+			types.forEach(type => {
+				state[type] = disable(state[type] || initialTypeMetadata())
+			})
+			return state
+		}
+		case 'CREATE_NODE': {
+			const { payload: node, oldNode } = action
+			const { type } = node.internal
+			if (oldNode) {
+				state[type] = deleteNode(state[type] || initialTypeMetadata(), oldNode)
+			}
+			state[type] = addNode(state[type] || initialTypeMetadata(), node)
+			return state
+		}
+		case 'DELETE_NODE': {
+			const node = action.payload
+			if (!node) return state
+			const { type } = node.internal
+			state[type] = deleteNode(state[type] || initialTypeMetadata(), node)
+			return state
+		}
+		case 'ADD_FIELD_TO_NODE': {
+			const { payload: node, addedField } = action
+			const { type } = node.internal
+			const previousFields = _.omit(node.fields, [addedField])
+			state[type] = deleteNode(state[type], { fields: previousFields })
+			state[type] = addNode(state[type], { fields: node.fields })
+			return state
+		}
+		case 'ADD_CHILD_NODE_TO_PARENT_NODE': {
+			const { type } = action.payload.internal
+			state[type].dirty = true
+			return state
+		}
+		case 'DELETE_NODES': {
+			const { fullNodes } = action
+			fullNodes.forEach(node => {
+				const { type } = node.internal
+				state[type] = deleteNode(state[type] || initialTypeMetadata(), node)
+			})
+			return state
+		}
+		case 'SET_SCHEMA': {
+			Object.keys(state).forEach(type => {
+				state[type].dirty = false
 			})
 			return state
 		}
@@ -373,7 +458,7 @@ const components = (state = new Map(), action) => {
 			if (!services.has(action.payload.componentPath)) {
 				const machine = componentMachine.withContext({
 					componentPath: action.payload.componentPath,
-					query: state.get(action.payload.componentPath)?.query || '',
+					query: state.get(action.payload.componentPath).query || '',
 					pages: new Set([action.payload.path]),
 					isInBootstrap: programStatus === 'BOOTSTRAPPING'
 				})
@@ -810,6 +895,140 @@ const themes = (state = {}, action) => {
 }
 
 
+const logs = (state = { messages: [], activities: {}, status: '' }, action) => {
+	const Actions = {
+		LogAction: 'LOG_ACTION',
+		SetStatus: 'SET_STATUS',
+		Log: 'LOG',
+		SetLogs: 'SET_LOGS',
+		StartActivity: 'ACTIVITY_START',
+		EndActivity: 'ACTIVITY_END',
+		UpdateActivity: 'ACTIVITY_UPDATE',
+		PendingActivity: 'ACTIVITY_PENDING',
+		CancelActivity: 'ACTIVITY_CANCEL',
+		ActivityErrored: 'ACTIVITY_ERRORED'
+	}
+	switch (action.type) {
+		case Actions.SetStatus: {
+			return {
+				...state,
+				status: action.payload
+			}
+		}
+		case Actions.Log: {
+			if (!action.payload.text) {
+				action.payload.text = '\u2800'
+			}
+			return {
+				...state,
+				messages: [...state.messages, action.payload]
+			}
+		}
+		case Actions.StartActivity: {
+			const { id } = action.payload
+			return {
+				...state,
+				activities: {
+					...state.activities,
+					[id]: action.payload
+				}
+			}
+		}
+		case Actions.UpdateActivity:
+		case Actions.PendingActivity: {
+			const { id, ...rest } = action.payload
+			const activity = state.activities[id]
+			return {
+				...state,
+				activities: {
+					...state.activities,
+					[id]: {
+						...activity,
+						...rest
+					}
+				}
+			}
+		}
+		case Actions.ActivityErrored: {
+			const { id } = action.payload
+			const activity = state.activities[id]
+			return {
+				...state,
+				activities: {
+					...state.activities,
+					[id]: {
+						...activity,
+						errored: true
+					}
+				}
+			}
+		}
+		case Actions.EndActivity:
+		case Actions.CancelActivity: {
+			const { id, status, duration } = action.payload
+			const activity = state.activities[id]
+			if (!activity) {
+				return state
+			}
+			const activities = { ...state.activities }
+			activities[id] = {
+				...activity,
+				status,
+				duration
+			}
+			return {
+				...state,
+				activities
+			}
+		}
+		case Actions.SetLogs: {
+			return action.payload
+		}
+	}
+	return state
+}
+
+
+const inferenceMetadata = (state = { step: 'initialBuild', typeMap: {} }, action) => {
+	const StepsEnum = {
+		initialBuild: 'initialBuild',
+		incrementalBuild: 'incrementalBuild'
+	}
+	const initialState = () => {
+		return {
+			step: StepsEnum.initialBuild,
+			typeMap: {}
+		}
+	}
+	switch (action.type) {
+		case 'CREATE_NODE':
+		case 'DELETE_NODE':
+		case 'DELETE_NODES':
+		case 'ADD_CHILD_NODE_TO_PARENT_NODE':
+		case 'ADD_FIELD_TO_NODE': {
+			if (state.step === StepsEnum.initialBuild) {
+				return state
+			}
+			state.typeMap = incrementalReducer(state.typeMap, action)
+			return state
+		}
+		case 'START_INCREMENTAL_INFERENCE': {
+			return {
+				...state,
+				step: StepsEnum.incrementalBuild
+			}
+		}
+		case 'DELETE_CACHE': {
+			return initialState()
+		}
+		default: {
+			state.typeMap = incrementalReducer(state.typeMap, action)
+			return state
+		}
+	}
+}
+
+
 module.exports = {
 	program: program,
 	nodes: getNodesReducer(),
@@ -832,10 +1051,9 @@ module.exports = {
 	babelrc: babelrc,
 	schemaCustomization: schemaCustomization,
 	themes: themes,
-	/* logs: require('gatsby-cli/lib/reporter/redux/reducer'),
-	inferenceMetadata: require('./inference-metadata') */
-	logs: () => { throw new Error('The logs reducer is missing its implementation') },
-	inferenceMetadata: () => { throw new Error('The inferenceMetadata reducer is missing its implementation') }
+	logs: logs,
+	inferenceMetadata: inferenceMetadata
 }
+
 
 
