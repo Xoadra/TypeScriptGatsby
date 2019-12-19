@@ -3,7 +3,6 @@
 
 
 const _ = require('lodash')
-const Promise = require('bluebird')
 const Remark = require('remark')
 const parse = require('remark-parse')
 const english = require('retext-english')
@@ -396,6 +395,5 @@ module.exports = ({ type, basePath }, pluginOptions) => {
 	}
 	return new Promise((resolve, reject) => resolve({}))
 }
-
 
 

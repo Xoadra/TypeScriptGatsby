@@ -69,11 +69,7 @@ const findLastTextNode = (node, textNode) => {
 }
 
 
-module.exports = {
-	getConcatenatedValue,
-	cloneTreeUntil,
-	findLastTextNode
-}
+module.exports = { getConcatenatedValue, cloneTreeUntil, findLastTextNode }
 
 
 
