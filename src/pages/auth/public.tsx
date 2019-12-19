@@ -46,7 +46,7 @@ export default (props: Props) => {
 				console.log('GRAPHQL', graphql)
 				const netlify: AxiosResponse = await axios.post('/.netlify/functions/remark', graphql)
 				console.log('NETLIFY', netlify)
-				setHtml(netlify.data.html)
+				setHtml(netlify.data.markdownRemark.html)
 			})()
 		}
 	})
