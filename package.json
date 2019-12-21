@@ -9,11 +9,9 @@
 		"build": "npm run build:gatsby && npm run build:lambda",
 		"build:gatsby": "gatsby build",
 		"build:lambda": "netlify-lambda build functions",
-		"build:parallel": "concurrently -p none \"npm:build:*\"",
-		"start": "npm run start:develop",
+		"start": "concurrently -p none -k \"npm:start:*\"",
 		"start:develop": "gatsby develop",
-		"start:function": "netlify-lambda serve functions",
-		"start:parallel": "concurrently -p none \"npm:start:*\"",
+		"start:function": "netlify-lambda serve functions -c webpack.functions.js",
 		"serve": "gatsby serve",
 		"clean": "gatsby clean",
 		"test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\" && exit 1"

@@ -18,7 +18,7 @@ interface Props {
 
 export default (props: Props) => {
 	const authenticator: GitHubAuth = useContext(GitHubContext)
-	const [html, setHtml]: [string, Dispatch<any>] = useState('')
+	const [html, setHtml]: [string, Dispatch<string>] = useState('')
 	const query: object = {
 		query: `query($owner: String!, $name: String!, $expression: String!) {
 			repository(owner: $owner, name: $name) {

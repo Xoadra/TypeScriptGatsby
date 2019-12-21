@@ -21,13 +21,15 @@ exports.onPreInit = () => {
 	require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
 }
 
-exports.onCreateWebpackConfig = (edge, options) => {
+exports.onCreateWebpackConfig = edge => {
 	if (edge.stage === 'develop') {
 		edge.actions.setWebpackConfig({
 			plugins: [
 				// Assign custom environment variables here
 				edge.plugins.define({}),
-				new TypeScriptCheckerWebpackPlugin({ ...options })
+				new TypeScriptCheckerWebpackPlugin({
+					logger: edge.reporter
+				})
 			]
 		})
 	}
