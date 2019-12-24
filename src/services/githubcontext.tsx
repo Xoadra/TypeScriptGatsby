@@ -10,7 +10,7 @@ import { GitHubAuth } from '../types/githubauth'
 
 
 
-const GitHubContext = React.createContext<GitHubAuth>({
+const GitHubContext: Context<GitHubAuth> = React.createContext<GitHubAuth>({
 	token: null, error: null,
 	authenticate: function(): void {},
 	signout: function(): void {}

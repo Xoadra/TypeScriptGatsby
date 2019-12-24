@@ -9,7 +9,7 @@ import { NetlifyAuth } from '../types/netlifyauth'
 
 
 
-const AuthContext = React.createContext<NetlifyAuth>({
+const AuthContext: Context<NetlifyAuth> = React.createContext<NetlifyAuth>({
 	isAuthenticated: false, user: null,
 	authenticate: function(callback?: any): void {},
 	signout: function(callback?: any): void {}

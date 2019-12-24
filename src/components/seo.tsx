@@ -19,17 +19,19 @@ import { Meta } from '../types/meta'
 
 
 interface Props {
-	description?: string
-	lang?: string
-	//meta?: Array<{ name: string; content: string }>
-	meta?: Array<Meta>
-	keywords?: Array<string>
 	title: string
+	lang?: string
+	description?: string
+	//meta?: Array<{ name: string; content: string }>
+	//meta?: Array<Meta>
+	meta?: Meta[]
+	//keywords?: Array<string>
+	keywords?: string[]
 }
 
 
-export default ({ description = '', lang = 'en', meta = [], keywords = [], title }: Props) => {
-	const { site } = useStaticQuery(graphql`
+export default (props: Props) => {
+	const { site }: any = useStaticQuery(graphql`
 		query {
 			site {
 				siteMetadata {
@@ -40,22 +42,24 @@ export default ({ description = '', lang = 'en', meta = [], keywords = [], title
 			}
 		}
 	`)
-	const metaDescription = description || site.siteMetadata.description
+	const { title = '', lang = 'en', meta = [] }: { title?: string, lang?: string, meta?: Meta[] } = props
+	const { description }: { description?: string } = props || site.siteMetadata
 	return (
 		<Helmet 
 			htmlAttributes={{ lang }} title={title} titleTemplate={`%s | ${site.siteMetadata.title}`}
 			meta={[
-				{ name: 'description', content: metaDescription },
+				{ name: 'description', content: description },
 				{ property: 'og:title', content: title },
-				{ property: 'og:description', content: metaDescription },
+				{ property: 'og:description', content: description },
 				{ property: 'og:type', content: 'website' },
 				{ name: 'twitter:card', content: 'summary' },
 				{ name: 'twitter:creator', content: site.siteMetadata.author },
 				{ name: 'twitter:title', content: title },
-				{ name: 'twitter:description', content: metaDescription }
+				{ name: 'twitter:description', content: description }
 			].concat(meta)}
 		/>
 	)
 }
+
 
 
