@@ -3,7 +3,7 @@
 
 
 import React, { Context, Dispatch, useState } from 'react'
-import netlifyIdentity, { User } from 'netlify-identity-widget'
+import NetlifyIdentity, { User } from 'netlify-identity-widget'
 
 import { NetlifyAuth } from '../types/netlifyauth'
 
@@ -11,8 +11,8 @@ import { NetlifyAuth } from '../types/netlifyauth'
 
 const AuthContext: Context<NetlifyAuth> = React.createContext<NetlifyAuth>({
 	isAuthenticated: false, user: null,
-	authenticate: function(callback?: any): void {},
-	signout: function(callback?: any): void {}
+	authenticate: function(callback?: Function): void {},
+	signout: function(callback?: Function): void {}
 })
 
 
@@ -20,23 +20,25 @@ export default AuthContext
 
 export const AuthProvider = (props: any) => {
 	const { Provider }: Context<NetlifyAuth> = AuthContext
-	const loginState: boolean = netlifyIdentity.currentUser() ? true : false
-	const [user, setUser]: [User | null, Dispatch<any>] = useState(netlifyIdentity.currentUser())
-	const [isAuthenticated, setIsAuthenticated]: [boolean, Dispatch<any>] = useState(loginState)
-	const authenticate = (callback: any): void => {
-		netlifyIdentity.open()
-		netlifyIdentity.on('login', (user: User) => {
+	const userIdentity: User | null = NetlifyIdentity.currentUser()
+	const loginStatus: boolean = userIdentity ? true : false
+	const [user, setUser]: [User | null, Dispatch<User | null>] = useState<User | null>(userIdentity)
+	const [isAuthenticated, setIsAuthenticated]: [boolean, Dispatch<boolean>] = useState<boolean>(loginStatus)
+	const authenticate = (callback: Function): void => {
+		NetlifyIdentity.open()
+		NetlifyIdentity.on('login', (user: User) => {
 			setUser(user)
 			callback(user)
 			setIsAuthenticated(true)
 			// Redirect to the CMS website after login
-			location.href = '/identity'
+			// This doesn't appear to be working yet
+			//location.href = '/identity'
 		})
 	}
-	const signout = (callback: any): void => {
+	const signout = (callback: Function): void => {
 		setIsAuthenticated(false)
-		netlifyIdentity.logout()
-		netlifyIdentity.on('logout', () => {
+		NetlifyIdentity.logout()
+		NetlifyIdentity.on('logout', () => {
 			setUser(null)
 			callback(user)
 		})
