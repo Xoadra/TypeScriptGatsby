@@ -43,9 +43,7 @@ export default (props: Props) => {
 				const url: string = 'https://api.github.com/graphql'
 				const headers: object = { 'Authorization': `Bearer ${authenticator.token}` }
 				const graphql: AxiosResponse = await axios.post(url, query, { headers })
-				console.log('GRAPHQL', graphql)
 				const netlify: AxiosResponse = await axios.post('/.netlify/functions/remark', graphql)
-				console.log('NETLIFY', netlify)
 				setHtml(netlify.data.markdownRemark.html)
 			})()
 		}

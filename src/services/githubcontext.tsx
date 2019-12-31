@@ -2,12 +2,17 @@
 
 
 
-import React, { Context, Dispatch, useState, useEffect } from 'react'
+import React, { ReactNode, Context, Dispatch, useState, useEffect } from 'react'
 import NetlifyIdentity, { User } from 'netlify-identity-widget'
 import Authenticator, { Config, Options, NetlifyError, Data } from 'netlify-auth-providers'
 
 import { GitHubAuth } from '../types/githubauth'
 
+
+
+interface Props {
+	children: ReactNode
+}
 
 
 const GitHubContext: Context<GitHubAuth> = React.createContext<GitHubAuth>({
@@ -19,7 +24,7 @@ const GitHubContext: Context<GitHubAuth> = React.createContext<GitHubAuth>({
 
 export default GitHubContext
 
-export const GitHubProvider = (props: any) => {
+export const GitHubProvider = (props: Props) => {
 	const { Provider }: Context<GitHubAuth> = GitHubContext
 	const user: User | null = NetlifyIdentity.currentUser()
 	const [token, setToken]: [string | null, Dispatch<string | null>] = useState<string | null>(
@@ -58,6 +63,5 @@ export const GitHubProvider = (props: any) => {
 		</Provider>
 	)
 }
-
 
 

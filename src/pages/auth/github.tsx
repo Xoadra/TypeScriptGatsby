@@ -16,8 +16,8 @@ interface Props {
 
 
 export default (props: Props) => {
-	const authenticator: GitHubAuth = useContext(GitHubContext)
-	const [username, setUsername]: [string, Dispatch<string>] = useState('')
+	const authenticator: GitHubAuth = useContext<GitHubAuth>(GitHubContext)
+	const [username, setUsername]: [string, Dispatch<string>] = useState<string>('')
 	const query = {
 		query: `query($username: String!) {
 			user(login: $username) {
@@ -70,6 +70,7 @@ export default (props: Props) => {
 			username: username
 		}
 	}
+	console.log('GITHUB', authenticator.token)
 	return (
 		<div>
 			<h3>GitHub Page</h3>
@@ -104,6 +105,5 @@ export default (props: Props) => {
 		</div>
 	)
 }
-
 
 

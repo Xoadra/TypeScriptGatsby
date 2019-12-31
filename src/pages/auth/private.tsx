@@ -2,33 +2,30 @@
 
 
 
-import React, { Dispatch, FormEvent, ChangeEvent, useState, useEffect, useContext } from 'react'
+import React, { Dispatch, FormEvent, ChangeEvent, useState, useEffect } from 'react'
 import { Redirect } from '@reach/router'
-import netlifyIdentity, { User } from 'netlify-identity-widget'
+import { User } from 'netlify-identity-widget'
 import axios, { AxiosResponse } from 'axios'
 
 import Document from '../../components/document'
-import GitHubContext from '../../services/githubcontext'
-import { GitHubAuth } from '../../types/githubauth'
 
 
 
 interface Props {
 	path: string
+	user: User | null
+	token: string | null
 	isAuthenticated: boolean
 }
 
 
 export default (props: Props) => {
-	const authenticator: GitHubAuth = useContext(GitHubContext)
-	const [userRepos, setUserRepos]: [object | any, Dispatch<any>] = useState(null)
-	const [repository, setRepository]: [string, Dispatch<string>] = useState('')
-	const [branch, setBranch]: [string, Dispatch<string>] = useState('')
-	const [isSubmitted, setIsSubmitted]: [boolean, Dispatch<any>] = useState(false)
-	const [isLoading, setIsLoading]: [boolean, Dispatch<any>] = useState(false)
-	const [error, setError]: [Error | any, Dispatch<Error>] = useState()
-	const identity: User | null = netlifyIdentity.currentUser()
-	console.log('IDENTITY', identity)
+	const [userRepos, setUserRepos]: [object | any, Dispatch<object | any>] = useState<object | any>(null)
+	const [repository, setRepository]: [string, Dispatch<string>] = useState<string>('')
+	const [branch, setBranch]: [string, Dispatch<string>] = useState<string>('')
+	const [isSubmitted, setIsSubmitted]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
+	const [isLoading, setIsLoading]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
+	const [error, setError]: [Error | null, Dispatch<Error | null>] = useState<Error | null>(null)
 	const fragments = (depth: number, level: number = 0): string => (
 		`fragment Level${level} on GitObject {
 			type: __typename
@@ -95,13 +92,11 @@ export default (props: Props) => {
 			if (props.isAuthenticated && !isLoading && !userRepos) {
 				setIsLoading(true)
 				const url: string = 'https://api.github.com/graphql'
-				const headers: object = { 'Authorization': `Bearer ${authenticator.token}` }
+				const headers: object = { 'Authorization': `Bearer ${props.token}` }
 				try {
 					const graphql: AxiosResponse = await axios.post(url, query, { headers })
 					// Query errors should be added to state eventually
-					console.log('REQUEST', graphql)
 					const profile = graphql.data.data.viewer || graphql.data.data.user
-					console.log('PROFILE', profile)
 					// Get the fetched repos and save them to state
 					const repositories = profile.repositories.nodes.reduce((collection: any, repository: any) => {
 						const branches = repository.refs.nodes.reduce((history: any, branch: any) => {
@@ -124,7 +119,7 @@ export default (props: Props) => {
 	return !props.isAuthenticated ? <Redirect to="/auth" noThrow/> : (
 		<div>
 			<h3>Private Page</h3>
-			<p>You are logged in as <b>{identity ? identity.email : ''}</b></p>
+			<p>You are logged in as <b>{props.user?.email || ''}</b></p>
 			{isSubmitted ? (
 				<article style={{ margin: '0 0 1.45rem' }}>
 					<h4>
@@ -192,6 +187,5 @@ export default (props: Props) => {
 		</div>
 	)
 }
-
 
 

@@ -55,7 +55,7 @@ declare module 'netlify-auth-providers' {
 		handshakeCallback(options: Options, cb: NetlifyCallback): EventCallback
 		authorizeCallback(options: Options, cb: NetlifyCallback): EventCallback
 		getSiteID(): string | null
-		authenticate(options: Options, cb: NetlifyCallback): any
+		authenticate(options: Options, cb: NetlifyCallback): void
 	}
 	
 }
