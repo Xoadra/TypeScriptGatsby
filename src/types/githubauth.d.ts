@@ -2,9 +2,13 @@
 
 
 
+import { NetlifyError } from 'netlify-auth-providers'
+
+
+
 export interface GitHubAuth {
 	token: string | null
-	error: any
+	error: NetlifyError | null
 	authenticate(): void
 	signout(): void
 }

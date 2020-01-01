@@ -4,7 +4,7 @@
 
 import React, { MouseEvent } from 'react'
 import { Link, graphql } from 'gatsby'
-import Authenticator from 'netlify-auth-providers'
+import Authenticator, { Config, Options, NetlifyError, Data } from 'netlify-auth-providers'
 
 import Layout from '../components/layout'
 import SEO from '../components/seo'
@@ -26,10 +26,10 @@ export default (props: Props) => (
 		<Link to="/">Home</Link>
 		<a href="#" onClick={(event: MouseEvent) => {
 			event.preventDefault()
-			const config: object = { site_id: 'https://ts-gatsby-github.netlify.com/' }
-			const authenticator = new Authenticator(config)
-			const options: object = { provider: 'github', scope: 'user' }
-			authenticator.authenticate(options, (error: any, data: any) => {
+			const config: Config = { site_id: process.env.NETLIFY_SITE_ID }
+			const authenticator: Authenticator = new Authenticator(config)
+			const options: Options = { provider: 'github', scope: 'user' }
+			authenticator.authenticate(options, (error: NetlifyError | null, data: Data) => {
 				if (error) {
 					return console.error(`Error Authenticating with GitHub: ${error}`)
 				}

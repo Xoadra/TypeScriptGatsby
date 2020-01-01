@@ -18,7 +18,7 @@ interface Props {
 
 export default (props: Props) => {
 	const authenticator: GitHubAuth = useContext(GitHubContext)
-	const [html, setHtml]: [string, Dispatch<any>] = useState('')
+	const [html, setHtml]: [string, Dispatch<string>] = useState('')
 	const query: object = {
 		query: `query($owner: String!, $name: String!, $expression: String!) {
 			repository(owner: $owner, name: $name) {
@@ -44,10 +44,10 @@ export default (props: Props) => {
 				const headers: object = { 'Authorization': `Bearer ${authenticator.token}` }
 				const graphql: AxiosResponse = await axios.post(url, query, { headers })
 				const netlify: AxiosResponse = await axios.post('/.netlify/functions/remark', graphql)
-				setHtml(netlify.data.html)
+				setHtml(netlify.data.markdownRemark.html)
 			})()
 		}
-	}, [html])
+	})
 	return (
 		<div>
 			<h3>Public Page</h3>
