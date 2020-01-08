@@ -75,7 +75,7 @@
 	margin: -8px 0 32px;
 }
 
-#modal > div:first-of-type > button {
+#modal > div:first-of-type > button, #modal > div:first-of-type > span {
 	color: #a3a9ac;
 	border: 0;
 	border-bottom: 2px solid #e9ebeb;
@@ -85,12 +85,20 @@
 	padding: 6px;
 }
 
+#modal > div:first-of-type > span {
+	font-weight: bold;
+	line-height: 24px;
+	text-align: center;
+	cursor: default;
+	user-select: none;
+}
+
 #modal > div:first-of-type > button:hover {
 	background: #e9ebeb;
 	color: #0e1e25;
 }
 
-#modal > div:first-of-type > button.active {
+#modal > div:first-of-type > button.active, #modal > div:first-of-type > span.active {
 	color: #0e1e25;
 	border-color: #0e1e25;
 }
@@ -204,7 +212,7 @@
 	padding: 4px;
 }
 
-#modal > div:last-of-type > button {
+#modal > div:not(:only-of-type):last-of-type > button {
 	position: relative;
 	/* display: block; */
 	border: 2px solid #000;
@@ -221,11 +229,11 @@
 	margin: 14px 0 0;
 }
 
-#modal > div:last-of-type > button:hover {
+#modal > div:not(:only-of-type):last-of-type > button:hover {
 	background: #000;
 }
 
-#modal > div:last-of-type > button::before {
+#modal > div:not(:only-of-type):last-of-type > button::before {
 	position: absolute;
 	/* display: inline-block; */
 	background-repeat: no-repeat;

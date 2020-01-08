@@ -17,6 +17,8 @@ interface Props {
 export default (props: Props) => {
 	const modalBoundary: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null)
 	const [isSignup, setIsSignup]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
+	const [isReset, setIsReset]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
+	const submitText: string = isReset ? 'Send recovery email' : isSignup ? 'Sign up' : 'Log in'
 	return (
 		<div style={{ position: 'fixed', zIndex: 100, background: '#0e1e25b0', height: '100%', width: '100%' }}>
 			<div id="fade" onClick={() => {
@@ -26,14 +28,20 @@ export default (props: Props) => {
 				<div ref={modalBoundary}>
 					<div id="modal" onClick={(event: MouseEvent) => event.stopPropagation()}>
 						<button onClick={() => props.toggle(false)}/>
-						<div>
-							<button className={isSignup ? 'active' : ''} onClick={() => setIsSignup(true)}>
-								Sign up
-							</button>
-							<button className={isSignup ? '' : 'active'} onClick={() => setIsSignup(false)}>
-								Log in
-							</button>
-						</div>
+						{isReset ? (
+							<div>
+								<span className="active">Recover password</span>
+							</div>
+						) : (
+							<div>
+								<button className={isSignup ? 'active' : ''} onClick={() => setIsSignup(true)}>
+									Sign up
+								</button>
+								<button className={isSignup ? '' : 'active'} onClick={() => setIsSignup(false)}>
+									Log in
+								</button>
+							</div>
+						)}
 						<form onSubmit={(event: FormEvent) => event.preventDefault()}>
 							{isSignup && (
 								<fieldset>
@@ -49,29 +57,33 @@ export default (props: Props) => {
 									<div id="email"/>
 								</label>
 							</fieldset>
-							<fieldset>
-								<label>
-									<input type="password" placeholder="Password" required/>
-									<div id="password"/>
-								</label>
-							</fieldset>
-							{isSignup ? (
-								<button type="submit">Sign up</button>
-							) : (
-								<button type="submit">Log in</button>
+							{!isReset && (
+								<fieldset>
+									<label>
+										<input type="password" placeholder="Password" required/>
+										<div id="password"/>
+									</label>
+								</fieldset>
 							)}
+							<button type="submit">{submitText}</button>
 						</form>
-						{!isSignup && (
-							<button onClick={() => null}>
+						{!isSignup && (!isReset ? (
+							<button onClick={() => setIsReset(true)}>
 								Forgot password?
 							</button>
-						)}
-						<div>
-							<hr/>
-							<button id="github" onClick={() => null}>
-								Continue with GitHub
+						) : (
+							<button onClick={() => setIsReset(false)}>
+								Never mind
 							</button>
-						</div>
+						))}
+						{!isReset && (
+							<div>
+								<hr/>
+								<button id="github" onClick={() => null}>
+									Continue with GitHub
+								</button>
+							</div>
+						)}
 					</div>
 				</div>
 			</div>
