@@ -12,8 +12,10 @@ export interface NetlifyAuth {
 	token: string | null
 	error: NetlifyError | null
 	isAuthenticated: boolean
-	authenticate(callback?: any): void
-	signout(callback?: any): void
+	toggle(open: boolean): void
+	authenticate(callback: Function): void
+	signout(callback: Function): void
 }
+
 
 

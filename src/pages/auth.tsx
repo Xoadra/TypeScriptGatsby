@@ -39,6 +39,7 @@ export default (props: Props) => {
 						// Page refresh bugs out the layout if logging in from public page
 						authenticator.authenticate(() => setRedirectToReferrer(true))
 					}}>Log In</button>
+					<button onClick={() => authenticator.toggle(true)}>Modal</button>
 				</p>
 			) : (
 				<p>
@@ -46,6 +47,7 @@ export default (props: Props) => {
 					<button onClick={() => {
 						authenticator.signout(() => props.navigate(props.location.pathname))
 					}}>Sign Out</button>
+					<button onClick={() => authenticator.toggle(false)}>Modal</button>
 				</p>
 			)}
 			<Link to="/">Home</Link>

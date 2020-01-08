@@ -6,6 +6,7 @@ import React, { ReactNode, Context, Dispatch, useState, useEffect } from 'react'
 import NetlifyIdentity, { User } from 'netlify-identity-widget'
 import Authenticator, { Config, Options, NetlifyError, Data } from 'netlify-auth-providers'
 
+import Modal from '../components/modal'
 import { NetlifyAuth } from '../types/netlifyauth'
 
 
@@ -17,8 +18,9 @@ interface Props {
 
 const AuthContext: Context<NetlifyAuth> = React.createContext<NetlifyAuth>({
 	user: null, token: null, error: null, isAuthenticated: false,
-	authenticate: function(callback?: Function): void {},
-	signout: function(callback?: Function): void {}
+	toggle: function(open: boolean): void {},
+	authenticate: function(callback: Function): void {},
+	signout: function(callback: Function): void {}
 })
 
 
@@ -33,6 +35,8 @@ export const AuthProvider = (props: Props) => {
 	const [token, setToken]: [string | null, Dispatch<string | null>] = useState<string | null>(accessToken)
 	const [error, setError]: [NetlifyError | null, Dispatch<NetlifyError | null>] = useState<NetlifyError | null>(null)
 	const [isAuthenticated, setIsAuthenticated]: [boolean, Dispatch<boolean>] = useState<boolean>(loginStatus)
+	const [isToggled, setIsToggled]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
+	const toggle = (open: boolean) => setIsToggled(open)
 	const authenticate = (callback: Function): void => {
 		NetlifyIdentity.open()
 		NetlifyIdentity.on('login', (user: User) => {
@@ -77,13 +81,13 @@ export const AuthProvider = (props: Props) => {
 			}
 		})
 	}, [])
-	const netlifyAuth: NetlifyAuth = { user, token, error, isAuthenticated, authenticate, signout }
+	const netlifyAuth: NetlifyAuth = { user, token, error, isAuthenticated, toggle, authenticate, signout }
 	return (
 		<Provider value={netlifyAuth}>
+			{isToggled && <Modal isToggled={isToggled} toggle={toggle}/>}
 			{props.children}
 		</Provider>
 	)
 }
-
 
 
