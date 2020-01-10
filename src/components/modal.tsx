@@ -2,7 +2,7 @@
 
 
 
-import React, { RefObject, Dispatch, MouseEvent, FormEvent, useRef, useState } from 'react'
+import React, { RefObject, Dispatch, MouseEvent, FormEvent, useRef, useState, useEffect } from 'react'
 
 import './modal.css'
 
@@ -18,7 +18,15 @@ export default (props: Props) => {
 	const modalBoundary: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null)
 	const [isSignup, setIsSignup]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	const [isReset, setIsReset]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
+	const [isLoading, setIsLoading]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	const submitText: string = isReset ? 'Send recovery email' : isSignup ? 'Sign up' : 'Log in'
+	const loadText: string = isReset ? 'Sending recovery email' : isSignup ? 'Signing up' : 'Logging in'
+	useEffect(() => {
+		if (isLoading) {
+			const timeout: Timeout = setTimeout(() => setIsLoading(false), 4000)
+			return (): void => clearTimeout(timeout)
+		}
+	})
 	return (
 		<div style={{ position: 'fixed', zIndex: 100, background: '#0e1e25b0', height: '100%', width: '100%' }}>
 			<div id="fade" onClick={() => {
@@ -42,7 +50,10 @@ export default (props: Props) => {
 								</button>
 							</div>
 						)}
-						<form onSubmit={(event: FormEvent) => event.preventDefault()}>
+						<form className={isLoading ? 'load' : ''} onSubmit={(event: FormEvent) => {
+							event.preventDefault()
+							setIsLoading(true)
+						}}>
 							{isSignup && (
 								<fieldset>
 									<label>
@@ -65,7 +76,9 @@ export default (props: Props) => {
 									</label>
 								</fieldset>
 							)}
-							<button type="submit">{submitText}</button>
+							<button className={isLoading ? 'load' : ''} type="submit">
+								{isLoading ? loadText : submitText}
+							</button>
 						</form>
 						{!isSignup && (!isReset ? (
 							<button onClick={() => setIsReset(true)}>
@@ -90,6 +103,5 @@ export default (props: Props) => {
 		</div>
 	)
 }
-
 
 

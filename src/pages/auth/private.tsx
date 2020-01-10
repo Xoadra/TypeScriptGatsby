@@ -134,7 +134,7 @@ export default (props: Props) => {
 					}}>Change Repository</button>
 				</article>
 			) : (
-				<form onSubmit={async (event: FormEvent) => {
+				<form onSubmit={(event: FormEvent) => {
 					event.preventDefault()
 					setIsSubmitted(true)
 				}}>

@@ -2,7 +2,7 @@
 
 
 
-import React, { FormEvent, Dispatch, useState, useContext } from 'react'
+import React, { Dispatch, FormEvent, ChangeEvent, useState, useContext } from 'react'
 import axios, { AxiosResponse } from 'axios'
 
 import GitHubContext from '../../services/githubcontext'
@@ -96,7 +96,9 @@ export default (props: Props) => {
 						}
 					}}>
 						<input type="text" placeholder="Enter a GitHub username"
-							onChange={event => setUsername(event.target.value.trim())}
+							onChange={(event: ChangeEvent<HTMLInputElement>) => {
+								setUsername(event.target.value.trim())
+							}}
 						/>
 						<button type="submit">Go</button>
 					</form>
