@@ -19,11 +19,16 @@ export default (props: Props) => {
 	const [isSignup, setIsSignup]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	const [isReset, setIsReset]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	const [isLoading, setIsLoading]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
+	// Temporary for testing the logged in modal UI until true authentication is implemented
+	const [isAuthenticated, setIsAuthenticated]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	const submitText: string = isReset ? 'Send recovery email' : isSignup ? 'Sign up' : 'Log in'
 	const loadText: string = isReset ? 'Sending recovery email' : isSignup ? 'Signing up' : 'Logging in'
 	useEffect(() => {
 		if (isLoading) {
-			const timeout: Timeout = setTimeout(() => setIsLoading(false), 4000)
+			const timeout: Timeout = setTimeout(() => {
+				setIsLoading(false)
+				setIsAuthenticated(isReset ? isAuthenticated : !isAuthenticated)
+			}, 4000)
 			return (): void => clearTimeout(timeout)
 		}
 	})
@@ -36,7 +41,7 @@ export default (props: Props) => {
 				<div ref={modalBoundary}>
 					<div id="modal" onClick={(event: MouseEvent) => event.stopPropagation()}>
 						<button onClick={() => props.toggle(false)}/>
-						{isReset ? (
+						{!isAuthenticated ? isReset ? (
 							<div>
 								<span className="active">Recover password</span>
 							</div>
@@ -49,12 +54,16 @@ export default (props: Props) => {
 									Log in
 								</button>
 							</div>
+						) : (
+							<div>
+								<span className="active">Logged in</span>
+							</div>
 						)}
 						<form className={isLoading ? 'load' : ''} onSubmit={(event: FormEvent) => {
 							event.preventDefault()
 							setIsLoading(true)
 						}}>
-							{isSignup && (
+							{!isAuthenticated && isSignup && (
 								<fieldset>
 									<label>
 										<input type="name" placeholder="Name" required/>
@@ -62,13 +71,15 @@ export default (props: Props) => {
 									</label>
 								</fieldset>
 							)}
-							<fieldset>
-								<label>
-									<input type="email" placeholder="Email" required/>
-									<div id="email"/>
-								</label>
-							</fieldset>
-							{!isReset && (
+							{!isAuthenticated && (
+								<fieldset>
+									<label>
+										<input type="email" placeholder="Email" required/>
+										<div id="email"/>
+									</label>
+								</fieldset>
+							)}
+							{!isAuthenticated && !isReset && (
 								<fieldset>
 									<label>
 										<input type="password" placeholder="Password" required/>
@@ -76,11 +87,21 @@ export default (props: Props) => {
 									</label>
 								</fieldset>
 							)}
+							{isAuthenticated && (
+								<p>
+									Logged in as <br/>
+									<span>Username</span>
+								</p>
+							)}
 							<button className={isLoading ? 'load' : ''} type="submit">
-								{isLoading ? loadText : submitText}
+								{!isAuthenticated ? (
+									isLoading ? loadText : submitText
+								) : (
+									isLoading ? 'Logging out' : 'Log out'
+								)}
 							</button>
 						</form>
-						{!isSignup && (!isReset ? (
+						{!isAuthenticated && !isSignup && (!isReset ? (
 							<button onClick={() => setIsReset(true)}>
 								Forgot password?
 							</button>
@@ -89,7 +110,7 @@ export default (props: Props) => {
 								Never mind
 							</button>
 						))}
-						{!isReset && (
+						{!isAuthenticated && !isReset && (
 							<div>
 								<hr/>
 								<button id="github" onClick={() => null}>
@@ -103,5 +124,6 @@ export default (props: Props) => {
 		</div>
 	)
 }
+
 
 
