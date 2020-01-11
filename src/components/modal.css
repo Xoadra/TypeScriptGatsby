@@ -28,6 +28,7 @@
 	position: relative;
 	background: #fff;
 	border-radius: 8px;
+	line-height: 1.5;
 	opacity: 0;
 	padding: 32px;
 	margin: 32px 0 125px;
@@ -112,6 +113,41 @@
 	pointer-events: none;
 }
 
+#modal form > div {
+	background: #f2f3f3;
+	color: #0e1e25;
+	border-radius: 4px;
+	font-size: 14px;
+	font-weight: 500;
+	text-align: center;
+	opacity: 0.7;
+	padding: 6px;
+	transition: opacity 0.2s linear;
+}
+
+#modal form > div:hover {
+	opacity: 1;
+}
+
+#modal form > div.error {
+	background: #fceef0;
+	color: #fa3946;
+	opacity: 1;
+}
+
+#modal form > div.error > span::before {
+	position: relative;
+	display: inline-block;
+	background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDE2IDE2Ij4KICA8cGF0aCBmaWxsPSIjRkEzOTQ2IiBkPSJNOCwxLjMzMzMzMzMzIEMxMS42NzYsMS4zMzMzMzMzMyAxNC42NjY2NjY3LDQuMzI0IDE0LjY2NjY2NjcsOCBDMTQuNjY2NjY2NywxMS42NzYgMTEuNjc2LDE0LjY2NjY2NjcgOCwxNC42NjY2NjY3IEM0LjMyNCwxNC42NjY2NjY3IDEuMzMzMzMzMzMsMTEuNjc2IDEuMzMzMzMzMzMsOCBDMS4zMzMzMzMzMyw0LjMyNCA0LjMyNCwxLjMzMzMzMzMzIDgsMS4zMzMzMzMzMyBaIE04LDAgQzMuNTgyLDAgMCwzLjU4MiAwLDggQzAsMTIuNDE4IDMuNTgyLDE2IDgsMTYgQzEyLjQxOCwxNiAxNiwxMi40MTggMTYsOCBDMTYsMy41ODIgMTIuNDE4LDAgOCwwIFogTTcuMTI2NjY2NjcsNS4wMTczMzMzMyBDNy4wNjA2NjY2Nyw0LjQ3OTMzMzMzIDcuNDc4NjY2NjcsNCA4LjAyNTMzMzMzLDQgQzguNTM5MzMzMzMsNCA4Ljk0MzMzMzMzLDQuNDUwNjY2NjcgOC44Nzg2NjY2Nyw0Ljk2NzMzMzMzIEw4LjM3NCw5LjAwMjY2NjY3IEM4LjM1MDY2NjY3LDkuMTkxMzMzMzMgOC4xOSw5LjMzMzMzMzMzIDgsOS4zMzMzMzMzMyBDNy44MSw5LjMzMzMzMzMzIDcuNjQ5MzMzMzMsOS4xOTEzMzMzMyA3LjYyNTMzMzMzLDkuMDAyNjY2NjcgTDcuMTI2NjY2NjcsNS4wMTczMzMzMyBMNy4xMjY2NjY2Nyw1LjAxNzMzMzMzIFogTTgsMTIuMTY2NjY2NyBDNy41NCwxMi4xNjY2NjY3IDcuMTY2NjY2NjcsMTEuNzkzMzMzMyA3LjE2NjY2NjY3LDExLjMzMzMzMzMgQzcuMTY2NjY2NjcsMTAuODczMzMzMyA3LjU0LDEwLjUgOCwxMC41IEM4LjQ2LDEwLjUgOC44MzMzMzMzMywxMC44NzMzMzMzIDguODMzMzMzMzMsMTEuMzMzMzMzMyBDOC44MzMzMzMzMywxMS43OTMzMzMzIDguNDYsMTIuMTY2NjY2NyA4LDEyLjE2NjY2NjcgWiIvPgo8L3N2Zz4K);
+	background-repeat: no-repeat;
+	background-position: center center;
+	content: "";
+	top: 3px;
+	height: 16px;
+	width: 16px;
+	margin: 0 4px 0 0;
+}
+
 #modal fieldset {
 	position: relative;
 	border: 0;
@@ -159,7 +195,6 @@
 #modal form > p {
 	color: #000;
 	font-size: 14px;
-	line-height: 1.5;
 	text-align: center;
 	margin: 32px 0;
 }
@@ -173,9 +208,9 @@
 	/* position: relative; */
 	display: block;
 	background: #2d3b41;
+	color: #fff;
 	border: 2px solid #0e1e25;
 	border-radius: 4px;
-	color: #fff;
 	font-size: 14px;
 	white-space: nowrap;
 	/* height: auto; */
@@ -205,9 +240,9 @@
 #modal > button:not(:only-of-type):last-of-type {
 	position: relative;
 	display: block;
+	color: #0e1e25;
 	border: none;
 	border-bottom: 2px solid #e9ebeb;
-	color: #0e1e25;
 	font-size: 14px;
 	font-weight: 500;
 	white-space: nowrap;
@@ -233,8 +268,8 @@
 #modal hr::before {
 	position: relative;
 	/* display: inline-block; */
-	content: "or";
 	background: #fff;
+	content: "or";
 	color: #0e1e25;
 	font-size: 12px;
 	font-weight: 800;
@@ -247,10 +282,10 @@
 #modal > div:not(:only-of-type):last-of-type > button {
 	position: relative;
 	/* display: block; */
-	border: 2px solid #000;
-	border-radius: 4px;
 	background: #333;
 	color: #fff;
+	border: 2px solid #000;
+	border-radius: 4px;
 	font-size: 14px;
 	text-align: center;
 	text-decoration: none;
@@ -315,5 +350,6 @@
 		box-shadow: none;
 	}
 }
+
 
 

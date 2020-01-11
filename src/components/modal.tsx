@@ -16,9 +16,11 @@ interface Props {
 
 export default (props: Props) => {
 	const modalBoundary: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null)
+	const [message, setMessage]: [string, Dispatch<string>] = useState<string>('')
 	const [isSignup, setIsSignup]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	const [isReset, setIsReset]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	const [isLoading, setIsLoading]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
+	const [isError, setIsError]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	// Temporary for testing the logged in modal UI until true authentication is implemented
 	const [isAuthenticated, setIsAuthenticated]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	const submitText: string = isReset ? 'Send recovery email' : isSignup ? 'Sign up' : 'Log in'
@@ -27,7 +29,11 @@ export default (props: Props) => {
 		if (isLoading) {
 			const timeout: Timeout = setTimeout(() => {
 				setIsLoading(false)
-				setIsAuthenticated(isReset ? isAuthenticated : !isAuthenticated)
+				if (!isSignup) {
+					setIsAuthenticated(isReset ? isAuthenticated : !isAuthenticated)
+				} else {
+					setMessage('A confirmation message was sent to your email, click the link there to continue.')
+				}
 			}, 4000)
 			return (): void => clearTimeout(timeout)
 		}
@@ -63,6 +69,11 @@ export default (props: Props) => {
 							event.preventDefault()
 							setIsLoading(true)
 						}}>
+							{message && (
+								<div className={isError ? 'error' : ''}>
+									<span>{message}</span>
+								</div>
+							)}
 							{!isAuthenticated && isSignup && (
 								<fieldset>
 									<label>
@@ -124,6 +135,5 @@ export default (props: Props) => {
 		</div>
 	)
 }
-
 
 
