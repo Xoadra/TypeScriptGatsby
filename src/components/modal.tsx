@@ -3,7 +3,7 @@
 
 
 import React, { RefObject, Dispatch, MouseEvent, FormEvent, ChangeEvent, useRef, useState, useEffect } from 'react'
-import GoTrue from 'gotrue-js'
+import GoTrue, { User } from 'gotrue-js'
 
 import './modal.css'
 
@@ -36,8 +36,6 @@ export default (props: Props) => {
 				setIsLoading(false)
 				if (!isSignup) {
 					setIsAuthenticated(isReset ? isAuthenticated : !isAuthenticated)
-				} else {
-					setMessage('A confirmation message was sent to your email, click the link there to continue.')
 				}
 			}, 4000)
 			return (): void => clearTimeout(timeout)
@@ -58,10 +56,14 @@ export default (props: Props) => {
 							</div>
 						) : (
 							<div>
-								<button className={isSignup ? 'active' : ''} onClick={() => setIsSignup(true)}>
+								<button className={isSignup ? 'active' : ''} disabled={isLoading}
+									onClick={() => setIsSignup(true)}
+								>
 									Sign up
 								</button>
-								<button className={isSignup ? '' : 'active'} onClick={() => setIsSignup(false)}>
+								<button className={isSignup ? '' : 'active'} disabled={isLoading}
+									onClick={() => setIsSignup(false)}
+								>
 									Log in
 								</button>
 							</div>
@@ -76,7 +78,7 @@ export default (props: Props) => {
 							const { authenticator }: { authenticator: GoTrue } = props
 							if (isReset) {
 								try {
-									const recovery: any = await authenticator.requestPasswordRecovery(email)
+									const recovery: void = await authenticator.requestPasswordRecovery(email)
 									console.log('Success!', recovery)
 									setMessage(
 										'We\'ve sent a recovery email to your account, follow the link there to reset your password.'
@@ -84,6 +86,22 @@ export default (props: Props) => {
 								} catch (error) {
 									setIsError(true)
 									console.error(`Error sending recovery mail: ${error}`)
+									setMessage(error.message)
+								} finally {
+									setIsLoading(false)
+								}
+							} else if (isSignup) {
+								const metadata: object = { full_name: name, best_food: 'pizza' }
+								try {
+									const creation: User = await authenticator.signup(email, password, metadata)
+									console.log('Success!', creation)
+									setMessage(
+										'A confirmation message was sent to your email, click the link there to continue.'
+									)
+									// If autoconfirming signups is desired, add a user login step here
+								} catch (error) {
+									setIsError(true)
+									console.error(`Error signing up user: ${error}`)
 									setMessage(error.message)
 								} finally {
 									setIsLoading(false)
