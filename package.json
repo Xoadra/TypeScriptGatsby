@@ -36,6 +36,7 @@
 		"gatsby-source-filesystem": "^2.1.38",
 		"gatsby-transformer-remark": "^2.6.38",
 		"gatsby-transformer-sharp": "^2.3.9",
+		"gotrue-js": "^0.9.25",
 		"gray-matter": "^4.0.2",
 		"hast-util-raw": "^5.0.1",
 		"hast-util-to-html": "^6.0.2",

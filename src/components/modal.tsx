@@ -2,13 +2,15 @@
 
 
 
-import React, { RefObject, Dispatch, MouseEvent, FormEvent, useRef, useState, useEffect } from 'react'
+import React, { RefObject, Dispatch, MouseEvent, FormEvent, ChangeEvent, useRef, useState, useEffect } from 'react'
+import GoTrue from 'gotrue-js'
 
 import './modal.css'
 
 
 
 interface Props {
+	authenticator: GoTrue
 	isToggled: boolean
 	toggle(open: boolean): void
 }
@@ -17,6 +19,9 @@ interface Props {
 export default (props: Props) => {
 	const modalBoundary: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null)
 	const [message, setMessage]: [string, Dispatch<string>] = useState<string>('')
+	const [name, setName]: [string, Dispatch<string>] = useState<string>('')
+	const [email, setEmail]: [string, Dispatch<string>] = useState<string>('')
+	const [password, setPassword]: [string, Dispatch<string>] = useState<string>('')
 	const [isSignup, setIsSignup]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	const [isReset, setIsReset]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	const [isLoading, setIsLoading]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
@@ -65,9 +70,25 @@ export default (props: Props) => {
 								<span className="active">Logged in</span>
 							</div>
 						)}
-						<form className={isLoading ? 'load' : ''} onSubmit={(event: FormEvent) => {
+						<form className={isLoading ? 'load' : ''} onSubmit={async (event: FormEvent) => {
 							event.preventDefault()
 							setIsLoading(true)
+							const { authenticator }: { authenticator: GoTrue } = props
+							if (isReset) {
+								try {
+									const recovery: any = await authenticator.requestPasswordRecovery(email)
+									console.log('Success!', recovery)
+									setMessage(
+										'We\'ve sent a recovery email to your account, follow the link there to reset your password.'
+									)
+								} catch (error) {
+									setIsError(true)
+									console.error(`Error sending recovery mail: ${error}`)
+									setMessage(error.message)
+								} finally {
+									setIsLoading(false)
+								}
+							}
 						}}>
 							{message && (
 								<div className={isError ? 'error' : ''}>
@@ -77,7 +98,11 @@ export default (props: Props) => {
 							{!isAuthenticated && isSignup && (
 								<fieldset>
 									<label>
-										<input type="name" placeholder="Name" required/>
+										<input value={name} type="name" placeholder="Name" required
+											onChange={(event: ChangeEvent<HTMLInputElement>) => {
+												setName(event.target.value)
+											}}
+										/>
 										<div id="name"/>
 									</label>
 								</fieldset>
@@ -85,7 +110,11 @@ export default (props: Props) => {
 							{!isAuthenticated && (
 								<fieldset>
 									<label>
-										<input type="email" placeholder="Email" required/>
+										<input value={email} type="email" placeholder="Email" required
+											onChange={(event: ChangeEvent<HTMLInputElement>) => {
+												setEmail(event.target.value)
+											}}
+										/>
 										<div id="email"/>
 									</label>
 								</fieldset>
@@ -93,7 +122,11 @@ export default (props: Props) => {
 							{!isAuthenticated && !isReset && (
 								<fieldset>
 									<label>
-										<input type="password" placeholder="Password" required/>
+										<input value={password} type="password" placeholder="Password" required
+											onChange={(event: ChangeEvent<HTMLInputElement>) => {
+												setPassword(event.target.value)
+											}}
+										/>
 										<div id="password"/>
 									</label>
 								</fieldset>
@@ -135,5 +168,6 @@ export default (props: Props) => {
 		</div>
 	)
 }
+
 
 

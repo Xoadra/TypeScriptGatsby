@@ -5,6 +5,7 @@
 import React, { ReactNode, Context, Dispatch, useState, useEffect } from 'react'
 import NetlifyIdentity, { User } from 'netlify-identity-widget'
 import Authenticator, { Config, Options, NetlifyError, Data } from 'netlify-auth-providers'
+import GoTrue from 'gotrue-js'
 
 import Modal from '../components/modal'
 import { NetlifyAuth } from '../types/netlifyauth'
@@ -82,9 +83,10 @@ export const AuthProvider = (props: Props) => {
 		})
 	}, [])
 	const netlifyAuth: NetlifyAuth = { user, token, error, isAuthenticated, toggle, authenticate, signout }
+	const goTrue: GoTrue = new GoTrue({ APIUrl: 'https://ts-gatsby-github.netlify.com/.netlify/identity' })
 	return (
 		<Provider value={netlifyAuth}>
-			{isToggled && <Modal isToggled={isToggled} toggle={toggle}/>}
+			{isToggled && <Modal authenticator={goTrue} isToggled={isToggled} toggle={toggle}/>}
 			{props.children}
 		</Provider>
 	)

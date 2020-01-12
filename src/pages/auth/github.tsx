@@ -83,7 +83,7 @@ export default (props: Props) => {
 				<button onClick={authenticator.authenticate}>Login</button>
 			)}
 			<section>
-				{!authenticator.token ? <p></p> : (
+				{!authenticator.token ? <p/> : (
 					<form onSubmit={async (event: FormEvent) => {
 						event.preventDefault()
 						const url: string = 'https://api.github.com/graphql'
@@ -95,7 +95,7 @@ export default (props: Props) => {
 							console.error(error)
 						}
 					}}>
-						<input type="text" placeholder="Enter a GitHub username"
+						<input value={username} type="text" placeholder="Enter a GitHub username"
 							onChange={(event: ChangeEvent<HTMLInputElement>) => {
 								setUsername(event.target.value.trim())
 							}}

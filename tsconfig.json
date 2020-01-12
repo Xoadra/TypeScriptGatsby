@@ -22,6 +22,7 @@
 		"./functions/**/*"
 	],
 	"exclude": [
-		"./functions/**/*.js"
+		"./functions/**/*.js",
+		"./node_modules/**/*"
 	]
 }
