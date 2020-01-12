@@ -47,7 +47,7 @@ export default (props: Props) => {
 					<button onClick={() => {
 						authenticator.signout(() => props.navigate(props.location.pathname))
 					}}>Sign Out</button>
-					<button onClick={() => authenticator.toggle(false)}>Modal</button>
+					<button onClick={() => authenticator.toggle(true)}>Modal</button>
 				</p>
 			)}
 			<Link to="/">Home</Link>

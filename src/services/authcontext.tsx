@@ -37,7 +37,7 @@ export const AuthProvider = (props: Props) => {
 	const [error, setError]: [NetlifyError | null, Dispatch<NetlifyError | null>] = useState<NetlifyError | null>(null)
 	const [isAuthenticated, setIsAuthenticated]: [boolean, Dispatch<boolean>] = useState<boolean>(loginStatus)
 	const [isToggled, setIsToggled]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
-	const toggle = (open: boolean) => setIsToggled(open)
+	const toggle = (open: boolean): void => setIsToggled(open)
 	const authenticate = (callback: Function): void => {
 		NetlifyIdentity.open()
 		NetlifyIdentity.on('login', (user: User) => {

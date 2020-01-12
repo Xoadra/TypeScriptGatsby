@@ -18,6 +18,8 @@ interface Props {
 
 export default (props: Props) => {
 	const modalBoundary: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null)
+	const { authenticator }: { authenticator: GoTrue } = props
+	const loginStatus: boolean = authenticator.currentUser() ? true : false
 	const [message, setMessage]: [string, Dispatch<string>] = useState<string>('')
 	const [name, setName]: [string, Dispatch<string>] = useState<string>('')
 	const [email, setEmail]: [string, Dispatch<string>] = useState<string>('')
@@ -27,7 +29,7 @@ export default (props: Props) => {
 	const [isLoading, setIsLoading]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	const [isError, setIsError]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	// Temporary for testing the logged in modal UI until true authentication is implemented
-	const [isAuthenticated, setIsAuthenticated]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
+	const [isAuthenticated, setIsAuthenticated]: [boolean, Dispatch<boolean>] = useState<boolean>(loginStatus)
 	const submitText: string = isReset ? 'Send recovery email' : isSignup ? 'Sign up' : 'Log in'
 	const loadText: string = isReset ? 'Sending recovery email' : isSignup ? 'Signing up' : 'Logging in'
 	useEffect(() => {
@@ -40,7 +42,7 @@ export default (props: Props) => {
 			}, 4000)
 			return (): void => clearTimeout(timeout)
 		}
-	})
+	}, [])
 	return (
 		<div style={{ position: 'fixed', zIndex: 100, background: '#0e1e25b0', height: '100%', width: '100%' }}>
 			<div id="fade" onClick={() => {
@@ -75,7 +77,6 @@ export default (props: Props) => {
 						<form className={isLoading ? 'load' : ''} onSubmit={async (event: FormEvent) => {
 							event.preventDefault()
 							setIsLoading(true)
-							const { authenticator }: { authenticator: GoTrue } = props
 							if (isReset) {
 								try {
 									const recovery: void = await authenticator.requestPasswordRecovery(email)
@@ -106,6 +107,23 @@ export default (props: Props) => {
 								} finally {
 									setIsLoading(false)
 								}
+							} else if (!isAuthenticated) {
+								try {
+									const user: User = await authenticator.login(email, password, true)
+									console.log('Success!', user)
+									setMessage('')
+									setIsAuthenticated(true)
+								} catch (error) {
+									setIsError(true)
+									const issue: string = error?.json.error_description || error.message
+									console.error(`Error logging in user: ${issue}`)
+									setMessage(error?.json.error_description || error.message || error.toString())
+								} finally {
+									setIsLoading(false)
+								}
+							} else {
+								setIsAuthenticated(false)
+								setIsLoading(false)
 							}
 						}}>
 							{message && (
@@ -152,7 +170,9 @@ export default (props: Props) => {
 							{isAuthenticated && (
 								<p>
 									Logged in as <br/>
-									<span>Username</span>
+									<span>
+										{authenticator.currentUser()?.user_metadata.full_name || 'Name'}
+									</span>
 								</p>
 							)}
 							<button className={isLoading ? 'load' : ''} type="submit">
