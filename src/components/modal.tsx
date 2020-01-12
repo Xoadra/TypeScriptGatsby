@@ -2,7 +2,7 @@
 
 
 
-import React, { RefObject, Dispatch, MouseEvent, FormEvent, ChangeEvent, useRef, useState, useEffect } from 'react'
+import React, { RefObject, Dispatch, MouseEvent, FormEvent, ChangeEvent, useRef, useState } from 'react'
 import GoTrue, { User } from 'gotrue-js'
 
 import './modal.css'
@@ -28,21 +28,10 @@ export default (props: Props) => {
 	const [isReset, setIsReset]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	const [isLoading, setIsLoading]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	const [isError, setIsError]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
-	// Temporary for testing the logged in modal UI until true authentication is implemented
+	// Temporary for testing the logged in modal UI until GoTrue authentication is moved into AuthContext
 	const [isAuthenticated, setIsAuthenticated]: [boolean, Dispatch<boolean>] = useState<boolean>(loginStatus)
 	const submitText: string = isReset ? 'Send recovery email' : isSignup ? 'Sign up' : 'Log in'
 	const loadText: string = isReset ? 'Sending recovery email' : isSignup ? 'Signing up' : 'Logging in'
-	useEffect(() => {
-		if (isLoading) {
-			const timeout: Timeout = setTimeout(() => {
-				setIsLoading(false)
-				if (!isSignup) {
-					setIsAuthenticated(isReset ? isAuthenticated : !isAuthenticated)
-				}
-			}, 4000)
-			return (): void => clearTimeout(timeout)
-		}
-	}, [])
 	return (
 		<div style={{ position: 'fixed', zIndex: 100, background: '#0e1e25b0', height: '100%', width: '100%' }}>
 			<div id="fade" onClick={() => {
@@ -88,8 +77,6 @@ export default (props: Props) => {
 									setIsError(true)
 									console.error(`Error sending recovery mail: ${error}`)
 									setMessage(error.message)
-								} finally {
-									setIsLoading(false)
 								}
 							} else if (isSignup) {
 								const metadata: object = { full_name: name, best_food: 'pizza' }
@@ -104,8 +91,6 @@ export default (props: Props) => {
 									setIsError(true)
 									console.error(`Error signing up user: ${error}`)
 									setMessage(error.message)
-								} finally {
-									setIsLoading(false)
 								}
 							} else if (!isAuthenticated) {
 								try {
@@ -118,13 +103,21 @@ export default (props: Props) => {
 									const issue: string = error?.json.error_description || error.message
 									console.error(`Error logging in user: ${issue}`)
 									setMessage(error?.json.error_description || error.message || error.toString())
-								} finally {
-									setIsLoading(false)
 								}
 							} else {
-								setIsAuthenticated(false)
-								setIsLoading(false)
+								try {
+									const absent: void = await authenticator.currentUser()?.logout()
+									console.log('Success!', absent)
+									setMessage('')
+									setIsAuthenticated(false)
+								} catch (error) {
+									setIsError(true)
+									const issue: string = error?.json.error_description || error.message
+									console.error(`Error logging out user: ${issue}`)
+									setMessage(error?.json.error_description || error.message || error.toString())
+								}
 							}
+							setIsLoading(false)
 						}}>
 							{message && (
 								<div className={isError ? 'error' : ''}>
@@ -206,6 +199,5 @@ export default (props: Props) => {
 		</div>
 	)
 }
-
 
 
