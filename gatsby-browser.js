@@ -12,15 +12,15 @@
 
 
 import React from 'react'
-import NetlifyIdentity from 'netlify-identity-widget'
+//import NetlifyIdentity from 'netlify-identity-widget'
 
 import { AuthProvider } from './src/services/authcontext'
 import { GitHubProvider } from './src/services/githubcontext'
 
 
 
-window.NetlifyIdentity = NetlifyIdentity
-NetlifyIdentity.init()
+//window.NetlifyIdentity = NetlifyIdentity
+//NetlifyIdentity.init()
 
 
 export const wrapRootElement = source => (

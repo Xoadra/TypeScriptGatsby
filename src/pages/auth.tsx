@@ -2,10 +2,11 @@
 
 
 
-import React, { Dispatch, useState, useContext } from 'react'
-import { Router, Redirect } from '@reach/router'
+import React, { useContext } from 'react'
+import { Router } from '@reach/router'
 import { Link } from 'gatsby'
-import { User } from 'netlify-identity-widget'
+//import { User } from 'netlify-identity-widget'
+import { User } from 'gotrue-js'
 
 import Layout from '../components/layout'
 import SEO from '../components/seo'
@@ -26,28 +27,25 @@ interface Props {
 
 export default (props: Props) => {
 	const authenticator: NetlifyAuth = useContext<NetlifyAuth>(AuthContext)
-	const [redirectToReferrer, setRedirectToReferrer]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	const { user, token }: { user: User | null, token: string | null } = authenticator
 	const { isAuthenticated }: { isAuthenticated: boolean } = authenticator
-	return redirectToReferrer ? <Redirect to="/auth"/> : (
+	return (
 		<Layout>
 			<SEO title="Auth"/>
 			{!isAuthenticated ? (
 				<p>
 					You are not logged in.{' '}
-					<button onClick={() => {
+					<button onClick={() => authenticator.toggle(true, () => {
 						// Page refresh bugs out the layout if logging in from public page
-						authenticator.authenticate(() => setRedirectToReferrer(true))
-					}}>Log In</button>
-					<button onClick={() => authenticator.toggle(true)}>Modal</button>
+						props.navigate(props.location.pathname)
+					})}>Log In</button>
 				</p>
 			) : (
 				<p>
 					Welcome!{' '}
-					<button onClick={() => {
-						authenticator.signout(() => props.navigate(props.location.pathname))
-					}}>Sign Out</button>
-					<button onClick={() => authenticator.toggle(true)}>Modal</button>
+					<button onClick={() => authenticator.toggle(true, () => {
+						props.navigate(props.location.pathname)
+					})}>Sign Out</button>
 				</p>
 			)}
 			<Link to="/">Home</Link>

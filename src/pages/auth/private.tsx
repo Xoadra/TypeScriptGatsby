@@ -4,7 +4,8 @@
 
 import React, { Dispatch, FormEvent, ChangeEvent, useState, useEffect } from 'react'
 import { Redirect } from '@reach/router'
-import { User } from 'netlify-identity-widget'
+//import { User } from 'netlify-identity-widget'
+import { User } from 'gotrue-js'
 import axios, { AxiosResponse } from 'axios'
 
 import Document from '../../components/document'
@@ -187,5 +188,6 @@ export default (props: Props) => {
 		</div>
 	)
 }
+
 
 

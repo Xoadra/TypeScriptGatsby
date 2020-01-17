@@ -2,24 +2,21 @@
 
 
 
-import React, { RefObject, Dispatch, MouseEvent, FormEvent, ChangeEvent, useRef, useState } from 'react'
+import React, { RefObject, Dispatch, MouseEvent, FormEvent, ChangeEvent, useRef, useState, useEffect } from 'react'
 import GoTrue, { User } from 'gotrue-js'
 
+import { NetlifyAuth } from '../types/netlifyauth'
 import './modal.css'
 
 
 
-interface Props {
+interface Props extends NetlifyAuth {
 	authenticator: GoTrue
-	isToggled: boolean
-	toggle(open: boolean): void
 }
 
 
 export default (props: Props) => {
 	const modalBoundary: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null)
-	const { authenticator }: { authenticator: GoTrue } = props
-	const loginStatus: boolean = authenticator.currentUser() ? true : false
 	const [message, setMessage]: [string, Dispatch<string>] = useState<string>('')
 	const [name, setName]: [string, Dispatch<string>] = useState<string>('')
 	const [email, setEmail]: [string, Dispatch<string>] = useState<string>('')
@@ -27,11 +24,10 @@ export default (props: Props) => {
 	const [isSignup, setIsSignup]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	const [isReset, setIsReset]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	const [isLoading, setIsLoading]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
-	const [isError, setIsError]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
-	// Temporary for testing the logged in modal UI until GoTrue authentication is moved into AuthContext
-	const [isAuthenticated, setIsAuthenticated]: [boolean, Dispatch<boolean>] = useState<boolean>(loginStatus)
 	const submitText: string = isReset ? 'Send recovery email' : isSignup ? 'Sign up' : 'Log in'
 	const loadText: string = isReset ? 'Sending recovery email' : isSignup ? 'Signing up' : 'Logging in'
+	const { authenticator, isAuthenticated }: { authenticator: GoTrue, isAuthenticated: boolean } = props
+	useEffect(() => console.log('Modal user...', props.user), [])
 	return (
 		<div style={{ position: 'fixed', zIndex: 100, background: '#0e1e25b0', height: '100%', width: '100%' }}>
 			<div id="fade" onClick={() => {
@@ -67,60 +63,35 @@ export default (props: Props) => {
 							event.preventDefault()
 							setIsLoading(true)
 							if (isReset) {
-								try {
-									const recovery: void = await authenticator.requestPasswordRecovery(email)
-									console.log('Success!', recovery)
-									setMessage(
+								await props.recover(email, (error: Error, data: void) => {
+									error ? setMessage(error.message) : setMessage(
 										'We\'ve sent a recovery email to your account, follow the link there to reset your password.'
 									)
-								} catch (error) {
-									setIsError(true)
-									console.error(`Error sending recovery mail: ${error}`)
-									setMessage(error.message)
-								}
+								})
 							} else if (isSignup) {
 								const metadata: object = { full_name: name, best_food: 'pizza' }
-								try {
-									const creation: User = await authenticator.signup(email, password, metadata)
-									console.log('Success!', creation)
-									setMessage(
+								await props.signup([email, password, metadata], (error: Error, data: User) => {
+									error ? setMessage(error.message) : setMessage(
 										'A confirmation message was sent to your email, click the link there to continue.'
 									)
-									// If autoconfirming signups is desired, add a user login step here
-								} catch (error) {
-									setIsError(true)
-									console.error(`Error signing up user: ${error}`)
-									setMessage(error.message)
-								}
+								})
 							} else if (!isAuthenticated) {
-								try {
-									const user: User = await authenticator.login(email, password, true)
-									console.log('Success!', user)
-									setMessage('')
-									setIsAuthenticated(true)
-								} catch (error) {
-									setIsError(true)
-									const issue: string = error?.json.error_description || error.message
-									console.error(`Error logging in user: ${issue}`)
-									setMessage(error?.json.error_description || error.message || error.toString())
-								}
+								await props.authenticate([email, password, true], (error: any, data: User) => {
+									!error ? setMessage('') : setMessage(
+										error?.json.error_description || error.message || error.toString()
+									)
+								})
 							} else {
-								try {
-									const absent: void = await authenticator.currentUser()?.logout()
-									console.log('Success!', absent)
-									setMessage('')
-									setIsAuthenticated(false)
-								} catch (error) {
-									setIsError(true)
-									const issue: string = error?.json.error_description || error.message
-									console.error(`Error logging out user: ${issue}`)
-									setMessage(error?.json.error_description || error.message || error.toString())
-								}
+								await props.logout((error: any, data: void) => {
+									!error ? setMessage('') : setMessage(
+										error?.json.error_description || error.message || error.toString()
+									)
+								})
 							}
 							setIsLoading(false)
 						}}>
 							{message && (
-								<div className={isError ? 'error' : ''}>
+								<div className={props.error ? 'error' : ''}>
 									<span>{message}</span>
 								</div>
 							)}
@@ -164,7 +135,7 @@ export default (props: Props) => {
 								<p>
 									Logged in as <br/>
 									<span>
-										{authenticator.currentUser()?.user_metadata.full_name || 'Name'}
+										{props.user?.user_metadata.full_name || 'Name'}
 									</span>
 								</p>
 							)}
@@ -188,7 +159,11 @@ export default (props: Props) => {
 						{!isAuthenticated && !isReset && (
 							<div>
 								<hr/>
-								<button id="github" onClick={() => null}>
+								<button id="github" onClick={() => {
+									const url: string = authenticator.loginExternalUrl('github')
+									const mode: string = process.env.NODE_ENV || 'development'
+									mode === 'production' ? window.location.href = url : window.open(url)
+								}}>
 									Continue with GitHub
 								</button>
 							</div>
@@ -199,5 +174,6 @@ export default (props: Props) => {
 		</div>
 	)
 }
+
 
 
