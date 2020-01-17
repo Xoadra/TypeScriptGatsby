@@ -55,10 +55,10 @@ export const AuthProvider = (props: Props) => {
 			const recovery: void = await goTrue.requestPasswordRecovery(email)
 			console.log('Success!', recovery)
 			callback(null, recovery)
-		} catch (failure) {
-			setError(failure)
-			console.error(`Error sending recovery mail: ${failure}`)
-			callback(failure, null)
+		} catch (issue) {
+			setError(issue)
+			console.error(`Error sending recovery mail: ${issue}`)
+			callback(issue, null)
 		} finally {
 			action()
 		}
@@ -69,10 +69,10 @@ export const AuthProvider = (props: Props) => {
 			console.log('Success!', creation)
 			callback(null, creation)
 			// If autoconfirming signups is desired, add a user login step here
-		} catch (failure) {
-			setError(failure)
-			console.error(`Error signing up user: ${error}`)
-			callback(failure, null)
+		} catch (issue) {
+			setError(issue)
+			console.error(`Error signing up user: ${issue}`)
+			callback(issue, null)
 		} finally {
 			action()
 		}
@@ -93,11 +93,11 @@ export const AuthProvider = (props: Props) => {
 			setUser(identity)
 			setIsAuthenticated(true)
 			callback(null, identity)
-		} catch (failure) {
-			setError(failure)
-			const issue: string = error?.json.error_description || error.message
-			console.error(`Error logging in user: ${issue}`)
-			callback(failure, null)
+		} catch (issue) {
+			setError(issue)
+			const report: string = issue?.json.error_description || issue.message
+			console.error(`Error logging in user: ${report}`)
+			callback(issue, null)
 		} finally {
 			action()
 		}
@@ -118,11 +118,11 @@ export const AuthProvider = (props: Props) => {
 			setUser(null)
 			setIsAuthenticated(false)
 			callback(null, absent)
-		} catch (failure) {
-			setError(failure)
-			const issue: string = error?.json.error_description || error.message
-			console.error(`Error logging out user: ${issue}`)
-			callback(failure, null)
+		} catch (issue) {
+			setError(issue)
+			const report: string = issue?.json.error_description || issue.message
+			console.error(`Error logging out user: ${report}`)
+			callback(issue, null)
 		} finally {
 			action()
 		}
@@ -152,9 +152,9 @@ export const AuthProvider = (props: Props) => {
 			console.log('Success!', provision)
 			setUser(provision)
 			setIsAuthenticated(true)
-		} catch (failure) {
-			setError(failure)
-			console.error(`Error provisioning git user: ${failure}`)
+		} catch (issue) {
+			setError(issue)
+			console.error(`Error provisioning git user: ${issue}`)
 		} finally {
 			callback()
 		}
