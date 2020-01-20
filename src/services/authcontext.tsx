@@ -4,7 +4,7 @@
 
 import React, { ReactNode, Context, Dispatch, useState, useEffect } from 'react'
 //import NetlifyIdentity, { User } from 'netlify-identity-widget'
-//import Authenticator, { Config, Options, NetlifyError, Data } from 'netlify-auth-providers'
+import Authenticator, { Config, Options, NetlifyError, Data } from 'netlify-auth-providers'
 import GoTrue, { User } from 'gotrue-js'
 
 import Modal from '../components/modal'
@@ -117,6 +117,8 @@ export const AuthProvider = (props: Props) => {
 			console.log('Success!', absent)
 			setUser(null)
 			setIsAuthenticated(false)
+			localStorage.removeItem('github-token')
+			setToken(null)
 			callback(null, absent)
 		} catch (issue) {
 			setError(issue)
@@ -152,41 +154,42 @@ export const AuthProvider = (props: Props) => {
 			console.log('Success!', provision)
 			setUser(provision)
 			setIsAuthenticated(true)
+			callback(null, provision)
 		} catch (issue) {
 			setError(issue)
 			console.error(`Error provisioning git user: ${issue}`)
-		} finally {
-			callback()
+			callback(issue, null)
 		}
 	}
 	useEffect(() => {
-		console.log('Loaded context!', document.location.hash)
 		const hash: string = (document.location.hash || '').replace(/^#\/?/, '')
 		if (hash.match(/access_token=/)) {
-			provider(hash, () => {
-				// Bugs out when immediately logging out via identity widget popup after logging in
-				// Will need to implement a custom authentication widget to make this work consistently
+			provider(hash, (error: any, data: User) => {
 				//NetlifyIdentity.on('close', () => {})
-				/* if (!token && isAuthenticated) {
-					const config: Config = { site_id: process.env.NETLIFY_SITE_ID }
-					const authenticator: Authenticator = new Authenticator(config)
-					const scoping: string[] = ['public_repo', 'read:org', 'read:user']
-					const options: Options = { provider: 'github', scope: scoping.join(',') }
-					authenticator.authenticate(options, (error: NetlifyError | null, data: Data) => {
-						if (error) {
-							console.error('An error in GitHubProvider!', error)
-							setError(error)
-						} else {
-							localStorage.setItem('github-token', data.token)
-							setToken(data.token)
-						}
-						setIsAuthenticated(error ? false : true)
-					})
-				} */
 			})
 		}
-		console.log('Context user...', user)
-	}, [])
+		if (!error && !token && isAuthenticated && user?.app_metadata.provider === 'github') {
+			const config: Config = { site_id: process.env.NETLIFY_SITE_ID }
+			const authenticator: Authenticator = new Authenticator(config)
+			const scoping: string[] = ['public_repo', 'read:org', 'read:user']
+			const options: Options = { provider: 'github', scope: scoping.join(',') }
+			try {
+				authenticator.authenticate(options, (issue: NetlifyError | null, data: Data) => {
+					if (issue) {
+						console.error(`Unable to obtain GitHub provider token: ${issue}`)
+						setError(issue)
+					} else {
+						localStorage.setItem('github-token', data.token)
+						setToken(data.token)
+					}
+				})
+			} catch (issue) {
+				// Occasionally will bug out and be unable to reference the window object
+				console.error(`Failed to complete GitHub provider token retrieval: ${issue}`)
+			}
+		}
+		console.log('Context user...', user, token)
+	})
 	const netlifyAuth: NetlifyAuth = {
 		user, token, error, isAuthenticated, isToggled, toggle, recover, signup, authenticate, logout, provider
 	}
@@ -197,5 +200,6 @@ export const AuthProvider = (props: Props) => {
 		</Provider>
 	)
 }
+
 
 

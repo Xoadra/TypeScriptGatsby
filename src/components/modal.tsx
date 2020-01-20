@@ -27,7 +27,7 @@ export default (props: Props) => {
 	const submitText: string = isReset ? 'Send recovery email' : isSignup ? 'Sign up' : 'Log in'
 	const loadText: string = isReset ? 'Sending recovery email' : isSignup ? 'Signing up' : 'Logging in'
 	const { authenticator, isAuthenticated }: { authenticator: GoTrue, isAuthenticated: boolean } = props
-	useEffect(() => console.log('Modal user...', props.user), [])
+	useEffect(() => console.log('Modal user...', props.user, props.token), [])
 	return (
 		<div style={{ position: 'fixed', zIndex: 100, background: '#0e1e25b0', height: '100%', width: '100%' }}>
 			<div id="fade" onClick={() => {
