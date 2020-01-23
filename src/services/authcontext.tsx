@@ -36,7 +36,7 @@ export const AuthProvider = (props: Props) => {
 	//const userIdentity: User | null = NetlifyIdentity.currentUser()
 	const userIdentity: User | null = goTrue.currentUser()
 	const loginStatus: boolean = userIdentity ? true : false
-	const accessToken: string | null = localStorage.getItem('github-token')
+	const accessToken: string | null = userIdentity ? localStorage.getItem('github-token') : null
 	const [user, setUser]: [User | null, Dispatch<User | null>] = useState<User | null>(userIdentity)
 	const [token, setToken]: [string | null, Dispatch<string | null>] = useState<string | null>(accessToken)
 	//const [error, setError]: [NetlifyError | null, Dispatch<NetlifyError | null>] = useState<NetlifyError | null>(null)
