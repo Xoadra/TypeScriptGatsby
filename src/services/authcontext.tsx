@@ -4,8 +4,9 @@
 
 import React, { ReactNode, Context, Dispatch, useState, useEffect } from 'react'
 //import NetlifyIdentity, { User } from 'netlify-identity-widget'
-import Authenticator, { Config, Options, NetlifyError, Data } from 'netlify-auth-providers'
+//import Authenticator, { Config, Options, NetlifyError, Data } from 'netlify-auth-providers'
 import GoTrue, { User } from 'gotrue-js'
+import axios, { AxiosResponse } from 'axios'
 
 import Modal from '../components/modal'
 import { NetlifyAuth, SignupData, LoginData, Token } from '../types/netlifyauth'
@@ -33,14 +34,12 @@ export default AuthContext
 export const AuthProvider = (props: Props) => {
 	const { Provider }: Context<NetlifyAuth> = AuthContext
 	const goTrue: GoTrue = new GoTrue({ APIUrl: 'https://ts-gatsby-github.netlify.com/.netlify/identity' })
-	//const userIdentity: User | null = NetlifyIdentity.currentUser()
 	const userIdentity: User | null = goTrue.currentUser()
 	const loginStatus: boolean = userIdentity ? true : false
 	const accessToken: string | null = userIdentity ? localStorage.getItem('github-token') : null
 	const [user, setUser]: [User | null, Dispatch<User | null>] = useState<User | null>(userIdentity)
 	const [token, setToken]: [string | null, Dispatch<string | null>] = useState<string | null>(accessToken)
-	//const [error, setError]: [NetlifyError | null, Dispatch<NetlifyError | null>] = useState<NetlifyError | null>(null)
-	const [error, setError]: [any, Dispatch<any>] = useState<any>(null)
+	const [error, setError]: [Error | null, Dispatch<Error | null>] = useState<Error | null>(null)
 	const [action, setAction]: [Function, Dispatch<Function>] = useState<Function>(() => () => {})
 	const [isAuthenticated, setIsAuthenticated]: [boolean, Dispatch<boolean>] = useState<boolean>(loginStatus)
 	const [isToggled, setIsToggled]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
@@ -83,15 +82,15 @@ export const AuthProvider = (props: Props) => {
 			setUser(user)
 			callback(user)
 			setIsAuthenticated(error ? true : false)
-			// Redirect to the CMS website after login
-			// This doesn't appear to be working yet
-			//window.location.href = '/identity'
 		}) */
 		try {
 			const identity: User = await goTrue.login(...data)
 			console.log('Success!', identity)
 			setUser(identity)
 			setIsAuthenticated(true)
+			// Redirect to the CMS website after login
+			// This doesn't appear to be working yet
+			//window.location.href = '/identity'
 			callback(null, identity)
 		} catch (issue) {
 			setError(issue)
@@ -134,62 +133,60 @@ export const AuthProvider = (props: Props) => {
 			const [key, value]: string[] = pair.split('=')
 			return { ...body, [key]: value }
 		}, {})
-		if (!!document && params['access_token']) {
-			document.cookie = `nf_jwt=${params['access_token']}`
+		if (!!document && params.access_token) {
+			document.cookie = `nf_jwt=${params.access_token}`
 		}
-		if (params['state']) {
+		if (params.state) {
 			try {
-				const state: string = decodeURIComponent(params['state'])
+				const state: string = decodeURIComponent(params.state)
 				const { auth_type }: { auth_type: string } = JSON.parse(state)
 				if (auth_type === 'implicit') {
 					return
 				}
 			} catch (error) {}
 		}
+		console.log('Show me the params!', params)
 		// Prevents redirection to Netlify CMS after provider login
 		document.location.hash = ''
-		setIsToggled(true)
-		try {
-			const provision: User = await goTrue.createUser(params, true)
-			console.log('Success!', provision)
-			setUser(provision)
-			setIsAuthenticated(true)
-			callback(null, provision)
-		} catch (issue) {
-			setError(issue)
-			console.error(`Error provisioning git user: ${issue}`)
-			callback(issue, null)
+		if (!isAuthenticated) {
+			try {
+				const provision: User = await goTrue.createUser(params, true)
+				console.log('Success!', provision)
+				setUser(provision)
+				setIsAuthenticated(true)
+				// Obtain a GitHub access token for using GitHub's API
+				const query: AxiosResponse = await axios.get('/.netlify/functions/client')
+				window.location.href = `https://github.com/login/oauth/authorize?${query.data}`
+			} catch (issue) {
+				setError(issue)
+				console.error(`Error provisioning GitHub user identity: ${issue}`)
+			}
+		} else {
+			try {
+				callback(null, params)
+			} catch (issue) {
+				callback(issue, null)
+			}
+			setIsToggled(true)
 		}
 	}
 	useEffect(() => {
 		const hash: string = (document.location.hash || '').replace(/^#\/?/, '')
 		if (hash.match(/access_token=/)) {
-			provider(hash, (error: any, data: User) => {
+			provider(hash, (issue: any, data: any) => {
 				//NetlifyIdentity.on('close', () => {})
+				console.log('Provider callback!', data, token)
+				if (issue) {
+					console.error(`Unable to obtain GitHub provider token: ${issue}`)
+					setError(issue)
+				} else {
+					localStorage.setItem('github-token', data.access_token)
+					setToken(data.access_token)
+				}
 			})
 		}
-		if (!error && !token && isAuthenticated && user?.app_metadata.provider === 'github') {
-			const config: Config = { site_id: process.env.NETLIFY_SITE_ID }
-			const authenticator: Authenticator = new Authenticator(config)
-			const scoping: string[] = ['public_repo', 'read:org', 'read:user']
-			const options: Options = { provider: 'github', scope: scoping.join(',') }
-			try {
-				authenticator.authenticate(options, (issue: NetlifyError | null, data: Data) => {
-					if (issue) {
-						console.error(`Unable to obtain GitHub provider token: ${issue}`)
-						setError(issue)
-					} else {
-						localStorage.setItem('github-token', data.token)
-						setToken(data.token)
-					}
-				})
-			} catch (issue) {
-				// Occasionally will bug out and be unable to reference the window object
-				console.error(`Failed to complete GitHub provider token retrieval: ${issue}`)
-			}
-		}
 		console.log('Context user...', user, token)
-	})
+	}, [user, token])
 	const netlifyAuth: NetlifyAuth = {
 		user, token, error, isAuthenticated, isToggled, toggle, recover, signup, authenticate, logout, provider
 	}
@@ -200,6 +197,5 @@ export const AuthProvider = (props: Props) => {
 		</Provider>
 	)
 }
-
 
 

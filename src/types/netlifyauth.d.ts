@@ -3,7 +3,7 @@
 
 
 //import { User } from 'netlify-identity-widget'
-import { NetlifyError } from 'netlify-auth-providers'
+//import { NetlifyError } from 'netlify-auth-providers'
 import { User } from 'gotrue-js'
 
 
@@ -24,7 +24,7 @@ export interface Token {
 export interface NetlifyAuth {
 	user: User | null
 	token: string | null
-	error: NetlifyError | null
+	error: Error | null
 	isAuthenticated: boolean
 	isToggled: boolean
 	toggle(open: boolean, callback?: Function): void
