@@ -37,7 +37,7 @@ exports.onCreateWebpackConfig = edge => {
 
 exports.sourceNodes = async edge => {
 	const url = 'https://api.github.com/graphql'
-	const headers = { 'Authorization': `Bearer ${process.env.GITHUB_API_TOKEN}` }
+	const headers = { Authorization: `Bearer ${process.env.GITHUB_API_TOKEN}` }
 	const query = {
 		query: `query($owner: String!, $name: String!, $expression: String!) {
 			repository(owner: $owner, name: $name) {

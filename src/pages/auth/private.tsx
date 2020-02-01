@@ -24,6 +24,7 @@ export default (props: Props) => {
 	const [userRepos, setUserRepos]: [object | any, Dispatch<object | any>] = useState<object | any>(null)
 	const [repository, setRepository]: [string, Dispatch<string>] = useState<string>('')
 	const [branch, setBranch]: [string, Dispatch<string>] = useState<string>('')
+	const [html, setHtml]: [string, Dispatch<string>] = useState<string>('')
 	const [isSubmitted, setIsSubmitted]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	const [isLoading, setIsLoading]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	const [error, setError]: [Error | null, Dispatch<Error | null>] = useState<Error | null>(null)
@@ -45,7 +46,7 @@ export default (props: Props) => {
 		}
 		${level + 1 >= depth ? '' : fragments(depth, level + 1)}`
 	)
-	const filter = 'first: 100, isFork: false, privacy: PUBLIC, ownerAffiliations: OWNER'
+	const filter: string = 'first: 100, isFork: false, privacy: PUBLIC, ownerAffiliations: OWNER'
 	const query = {
 		query: `query${props.isAuthenticated ? '' : '($username: String!)'} {
 			${props.isAuthenticated ? 'viewer' : 'user(login: $username)'} {
@@ -97,10 +98,10 @@ export default (props: Props) => {
 				try {
 					const graphql: AxiosResponse = await axios.post(url, query, { headers })
 					// Query errors should be added to state eventually
-					const profile = graphql.data.data.viewer || graphql.data.data.user
+					const profile: any = graphql.data.data.viewer || graphql.data.data.user
 					// Get the fetched repos and save them to state
-					const repositories = profile.repositories.nodes.reduce((collection: any, repository: any) => {
-						const branches = repository.refs.nodes.reduce((history: any, branch: any) => {
+					const repositories: any = profile.repositories.nodes.reduce((collection: any, repository: any) => {
+						const branches: object = repository.refs.nodes.reduce((history: any, branch: any) => {
 							return { ...history, [branch.name]: { ...branch } }
 						}, {})
 						repository = { ...repository, refs: { ...repository.refs, nodes: branches } }
@@ -127,7 +128,16 @@ export default (props: Props) => {
 						Viewing <span style={{ textTransform: 'capitalize' }}>{repository}</span>'s
 						README On The <span style={{ textTransform: 'capitalize' }}>{branch}</span> Branch
 					</h4>
-					<Document html={'html'}/>
+					{!isLoading ? error ? (
+						<p>
+							There is an error!<br/><br/>
+							<b>{error.name}</b>: {error.message}.
+						</p>
+					) : (
+						<Document html={html || 'No README found!  :('}/>
+					) : (
+						<p>Transforming the selected README file...</p>
+					)}
 					<button onClick={() => {
 						setIsSubmitted(false)
 						setRepository('')
@@ -135,9 +145,27 @@ export default (props: Props) => {
 					}}>Change Repository</button>
 				</article>
 			) : (
-				<form onSubmit={(event: FormEvent) => {
+				<form onSubmit={async (event: FormEvent) => {
 					event.preventDefault()
 					setIsSubmitted(true)
+					const head: any = userRepos[repository].refs.nodes[branch]
+					console.log(`Viewing branch ${branch} on repository ${repository}: `, head)
+					const readme: any = head.target.tree.entries.find((entry: any) => {
+						return /^(README){1}((\.){1}(\D)+)$/i.test(entry.name)
+					})
+					if (readme) {
+						setIsLoading(true)
+						const blob: any = { data: { data: { repository: readme } } }
+						try {
+							const document: AxiosResponse = await axios.post('/.netlify/functions/remark', blob)
+							setHtml(document.data.markdownRemark.html)
+						} catch (issue) {
+							setError(issue)
+							console.error('Error trying to transform README file: ', issue)
+						} finally {
+							setIsLoading(false)
+						}
+					}
 				}}>
 					<h4>Display A GitHub Repository's README Document!</h4>
 					{!userRepos ? error ? (
