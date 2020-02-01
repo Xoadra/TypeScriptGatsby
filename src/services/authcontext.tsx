@@ -90,7 +90,7 @@ export const AuthProvider = (props: Props) => {
 			setIsAuthenticated(true)
 			// Redirect to the CMS website after login
 			// This doesn't appear to be working yet
-			//window.location.href = '/identity'
+			//location.href = '/identity'
 			callback(null, identity)
 		} catch (issue) {
 			setError(issue)
@@ -145,7 +145,6 @@ export const AuthProvider = (props: Props) => {
 				}
 			} catch (error) {}
 		}
-		console.log('Show me the params!', params)
 		// Prevents redirection to Netlify CMS after provider login
 		document.location.hash = ''
 		if (!isAuthenticated) {
@@ -156,7 +155,7 @@ export const AuthProvider = (props: Props) => {
 				setIsAuthenticated(true)
 				// Obtain a GitHub access token for using GitHub's API
 				const query: AxiosResponse = await axios.get('/.netlify/functions/client')
-				window.location.href = `https://github.com/login/oauth/authorize?${query.data}`
+				location.href = `https://github.com/login/oauth/authorize?${query.data}`
 			} catch (issue) {
 				setError(issue)
 				console.error(`Error provisioning GitHub user identity: ${issue}`)
@@ -197,5 +196,6 @@ export const AuthProvider = (props: Props) => {
 		</Provider>
 	)
 }
+
 
 

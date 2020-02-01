@@ -93,7 +93,7 @@ export default (props: Props) => {
 			if (props.isAuthenticated && !isLoading && !userRepos) {
 				setIsLoading(true)
 				const url: string = 'https://api.github.com/graphql'
-				const headers: object = { 'Authorization': `Bearer ${props.token}` }
+				const headers: object = { Authorization: `Bearer ${props.token}` }
 				try {
 					const graphql: AxiosResponse = await axios.post(url, query, { headers })
 					// Query errors should be added to state eventually

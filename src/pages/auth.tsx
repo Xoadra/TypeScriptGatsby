@@ -52,9 +52,9 @@ export default (props: Props) => {
 			<Link to="/auth">Auth</Link>
 			<Link to="/auth/public">Public</Link>
 			<Link to="/auth/private">Private</Link>
-			<Link to="/auth/github">GitHub</Link>
+			{/* <Link to="/auth/github">GitHub</Link> */}
 			<Router>
-				<Public path="/auth/public"/>
+				<Public path="/auth/public" token={token}/>
 				<Private path="/auth/private" user={user} token={token} isAuthenticated={isAuthenticated}/>
 				<GitHub path="/auth/github"/>
 			</Router>

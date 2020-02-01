@@ -70,24 +70,24 @@ export default (props: Props) => {
 			username: username
 		}
 	}
-	console.log('GITHUB', authenticator.token)
 	return (
 		<div>
 			<h3>GitHub Page</h3>
 			<p>Use OAuth to access the GitHub API directly!</p>
-			{authenticator.token ? (
+			{/* authenticator.token ? (
 				<button onClick={authenticator.signout}>Logout</button>
 			) : authenticator.error ? (
 				<><p>An error!</p><pre>{JSON.stringify(authenticator.error, null, 2)}</pre></>
 			) : (
 				<button onClick={authenticator.authenticate}>Login</button>
-			)}
+			) */}
 			<section>
-				{!authenticator.token ? <p/> : (
+				{/* !authenticator.token ? <p/> : */ (
 					<form onSubmit={async (event: FormEvent) => {
 						event.preventDefault()
 						const url: string = 'https://api.github.com/graphql'
-						const headers: object = { Authorization: `Bearer ${authenticator.token}` }
+						//const headers: object = { Authorization: `Bearer ${authenticator.token}` }
+						const headers: object = { Authorization: `Bearer ${localStorage.getItem('github-token')}` }
 						try {
 							const graphql: AxiosResponse = await axios.post(url, query, { headers })
 							console.log(graphql)

@@ -2,22 +2,20 @@
 
 
 
-import React, { Dispatch, useState, useEffect, useContext } from 'react'
+import React, { Dispatch, useState, useEffect } from 'react'
 import axios, { AxiosResponse } from 'axios'
 
 import Document from '../../components/document'
-import GitHubContext from '../../services/githubcontext'
-import { GitHubAuth } from '../../types/githubauth'
 
 
 
 interface Props {
 	path: string
+	token: string | null
 }
 
 
 export default (props: Props) => {
-	const authenticator: GitHubAuth = useContext(GitHubContext)
 	const [html, setHtml]: [string, Dispatch<string>] = useState('')
 	const query: object = {
 		query: `query($owner: String!, $name: String!, $expression: String!) {
@@ -41,7 +39,7 @@ export default (props: Props) => {
 		if (!html) {
 			(async () => {
 				const url: string = 'https://api.github.com/graphql'
-				const headers: object = { 'Authorization': `Bearer ${authenticator.token}` }
+				const headers: object = { Authorization: `Bearer ${process.env.GITHUB_API_TOKEN || props.token}` }
 				const graphql: AxiosResponse = await axios.post(url, query, { headers })
 				const netlify: AxiosResponse = await axios.post('/.netlify/functions/remark', graphql)
 				setHtml(netlify.data.markdownRemark.html)
