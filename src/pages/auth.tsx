@@ -56,7 +56,7 @@ export default (props: Props) => {
 			<Router>
 				<Public path="/auth/public" token={token}/>
 				<Private path="/auth/private" user={user} token={token} isAuthenticated={isAuthenticated}/>
-				<GitHub path="/auth/github"/>
+				{/* <GitHub path="/auth/github"/> */}
 			</Router>
 		</Layout>
 	)

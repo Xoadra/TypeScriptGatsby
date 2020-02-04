@@ -8,6 +8,7 @@ import { Redirect } from '@reach/router'
 import { User } from 'gotrue-js'
 import axios, { AxiosResponse } from 'axios'
 
+import Editor from '../../components/editor'
 import Document from '../../components/document'
 
 
@@ -24,9 +25,11 @@ export default (props: Props) => {
 	const [userRepos, setUserRepos]: [object | any, Dispatch<object | any>] = useState<object | any>(null)
 	const [repository, setRepository]: [string, Dispatch<string>] = useState<string>('')
 	const [branch, setBranch]: [string, Dispatch<string>] = useState<string>('')
+	const [document, setDocument]: [any, Dispatch<any>] = useState<any>({})
 	const [html, setHtml]: [string, Dispatch<string>] = useState<string>('')
 	const [isSubmitted, setIsSubmitted]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	const [isLoading, setIsLoading]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
+	const [isEditing, setIsEditing]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	const [error, setError]: [Error | null, Dispatch<Error | null>] = useState<Error | null>(null)
 	const fragments = (depth: number, level: number = 0): string => (
 		`fragment Level${level} on GitObject {
@@ -122,7 +125,15 @@ export default (props: Props) => {
 		<div>
 			<h3>Private Page</h3>
 			<p>You are logged in as <b>{props.user?.email || ''}</b></p>
-			{isSubmitted ? (
+			{isSubmitted ? isEditing ? (
+				<article style={{ margin: '0 0 1.45rem' }}>
+					<h4>
+						Modifying <span style={{ textTransform: 'capitalize' }}>{repository}</span>'s
+						README On The <span style={{ textTransform: 'capitalize' }}>{branch}</span> Branch
+					</h4>
+					<Editor document={document} exit={() => setIsEditing(false)}/>
+				</article>
+			) : (
 				<article style={{ margin: '0 0 1.45rem' }}>
 					<h4>
 						Viewing <span style={{ textTransform: 'capitalize' }}>{repository}</span>'s
@@ -143,6 +154,9 @@ export default (props: Props) => {
 						setRepository('')
 						setBranch('')
 					}}>Change Repository</button>
+					{html && (
+						<button onClick={() => setIsEditing(true)}>Modify Document</button>
+					)}
 				</article>
 			) : (
 				<form onSubmit={async (event: FormEvent) => {
@@ -156,9 +170,10 @@ export default (props: Props) => {
 					if (readme) {
 						setIsLoading(true)
 						const blob: any = { data: { data: { repository: readme } } }
+						setDocument(blob.data.data.repository)
 						try {
-							const document: AxiosResponse = await axios.post('/.netlify/functions/remark', blob)
-							setHtml(document.data.markdownRemark.html)
+							const markdown: AxiosResponse = await axios.post('/.netlify/functions/remark', blob)
+							setHtml(markdown.data.markdownRemark.html)
 						} catch (issue) {
 							setError(issue)
 							console.error('Error trying to transform README file: ', issue)
@@ -216,6 +231,5 @@ export default (props: Props) => {
 		</div>
 	)
 }
-
 
 
