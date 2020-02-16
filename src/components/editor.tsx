@@ -23,6 +23,7 @@ interface Props {
 export default (props: Props) => {
 	const editor: RefObject<HTMLTextAreaElement> = useRef<HTMLTextAreaElement>(null)
 	const [html, setHtml]: [string, Dispatch<string>] = useState<string>('')
+	// Form input data changes are buggy in that they reset the screen's position
 	const [text, setText]: [string, Dispatch<string>] = useState<string>(props.document.object.text || '')
 	const [message, setMessage]: [string, Dispatch<string>] = useState<string>('')
 	const [isPreview, setIsPreview]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
@@ -39,9 +40,24 @@ export default (props: Props) => {
 		}
 	})
 	return (
-		<form onSubmit={(event: FormEvent) => {
+		<form onSubmit={async (event: FormEvent) => {
 			event.preventDefault()
-			// Unfortunately, the GitHub API seems to lack a mutation for updating files
+			// Will need changes in the future to allow nested file updates
+			const path: string = `contents/${props.document.name}`
+			const target: string = `${props.viewer.login}/${props.repository}`
+			// GitHub's GraphQL API seems to lack a mutation for file updating
+			// Make due for now by using the regular REST version of the API
+			const url: string = `https://api.github.com/repos/${target}/${path}`
+			const encoding: string = Buffer.from(text).toString('base64')
+			const headers: object = { Accept: 'application/vnd.github.v3+json', Authorization: `Bearer ${props.token}` }
+			const mutation: object = { message, content: encoding, sha: props.document.object.oid, branch: props.branch }
+			console.log('Submitting file content update...', mutation)
+			try {
+				const update: AxiosResponse = await axios.put(url, mutation, { headers })
+				props.update(update)
+			} catch (error) {
+				console.error('File update failed!', error)
+			}
 		}}>
 			<nav>
 				<button disabled={!isPreview} onClick={() => setIsPreview(false)}>Modify</button>

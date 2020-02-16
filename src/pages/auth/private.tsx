@@ -136,7 +136,7 @@ export default (props: Props) => {
 					<Editor viewer={viewer} repository={repository} branch={branch} document={document}
 						token={props.token} exit={() => setIsEditing(false)} update={(ref: any) => {
 							// Updated object passed in here should be saved in state
-							console.log('Update succeeded!', ref)
+							console.log('Update succeeded!', ref, userRepos[repository].refs.nodes[branch])
 						}}
 					/>
 				</article>
