@@ -10,8 +10,13 @@ import Document from './document'
 
 
 interface Props {
+	viewer: { login: string, name: string, email: string }
+	repository: string
+	branch: string
 	document: any
+	token: string | null
 	exit(): void
+	update(ref: any): void
 }
 
 
@@ -19,8 +24,9 @@ export default (props: Props) => {
 	const editor: RefObject<HTMLTextAreaElement> = useRef<HTMLTextAreaElement>(null)
 	const [html, setHtml]: [string, Dispatch<string>] = useState<string>('')
 	const [text, setText]: [string, Dispatch<string>] = useState<string>(props.document.object.text || '')
+	const [message, setMessage]: [string, Dispatch<string>] = useState<string>('')
 	const [isPreview, setIsPreview]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
-	console.log('Opening editor...', props.document, html, text)
+	console.log('Opening editor...', props.document)
 	useEffect(() => {
 		if (editor.current) {
 			// Alternative way to dynamically resize the textarea element
@@ -35,7 +41,7 @@ export default (props: Props) => {
 	return (
 		<form onSubmit={(event: FormEvent) => {
 			event.preventDefault()
-			// Submit the saved document using a GraphQL mutation via the GitHub API here
+			// Unfortunately, the GitHub API seems to lack a file update mutation
 		}}>
 			<nav>
 				<button disabled={!isPreview} onClick={() => setIsPreview(false)}>Modify</button>
@@ -53,21 +59,29 @@ export default (props: Props) => {
 			{isPreview ? (
 				<Document html={html}/>
 			) : (
-				<textarea
-					style={{
-						background: 'powderblue', border: 0, resize: 'none', /* resize: 'vertical', */ width: '100%', padding: '1.45em', margin: '1.45rem 0'
-					}}
-					value={text} rows={1} ref={editor} onChange={(event: ChangeEvent<HTMLTextAreaElement>) => {
-						event.preventDefault()
-						setText(event.target.value)
-					}}
-				/>
+				<fieldset>
+					<textarea
+						style={{
+							background: 'powderblue', border: 0, resize: 'none', /* resize: 'vertical', */ width: '100%', padding: '1.45em', margin: '1.45rem 0'
+						}}
+						value={text} rows={1} ref={editor} onChange={(event: ChangeEvent<HTMLTextAreaElement>) => {
+							event.preventDefault()
+							setText(event.target.value)
+						}}
+					/>
+					<input
+						value={message} placeholder="Enter commit message"
+						onChange={(event: ChangeEvent<HTMLInputElement>) => {
+							event.preventDefault()
+							setMessage(event.target.value)
+						}}
+					/>
+				</fieldset>
 			)}
 			<button onClick={props.exit}>Back</button>
 			<button type="submit">Save</button>
 		</form>
 	)
 }
-
 
 

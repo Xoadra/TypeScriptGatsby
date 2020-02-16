@@ -23,6 +23,7 @@ interface Props {
 
 export default (props: Props) => {
 	const [userRepos, setUserRepos]: [object | any, Dispatch<object | any>] = useState<object | any>(null)
+	const [viewer, setViewer]: [any, Dispatch<any>] = useState<any>({})
 	const [repository, setRepository]: [string, Dispatch<string>] = useState<string>('')
 	const [branch, setBranch]: [string, Dispatch<string>] = useState<string>('')
 	const [document, setDocument]: [any, Dispatch<any>] = useState<any>({})
@@ -56,7 +57,7 @@ export default (props: Props) => {
 				login
 				name
 				email
-				repositories(${filter}, orderBy: {field: NAME, direction: ASC}) {
+				repositories(${filter}, orderBy: { field: NAME, direction: ASC }) {
 					totalCount
 					nodes {
 						name
@@ -102,6 +103,7 @@ export default (props: Props) => {
 					const graphql: AxiosResponse = await axios.post(url, query, { headers })
 					// Query errors should be added to state eventually
 					const profile: any = graphql.data.data.viewer || graphql.data.data.user
+					setViewer({ login: profile.login, name: profile.name, email: profile.email })
 					// Get the fetched repos and save them to state
 					const repositories: any = profile.repositories.nodes.reduce((collection: any, repository: any) => {
 						const branches: object = repository.refs.nodes.reduce((history: any, branch: any) => {
@@ -131,7 +133,12 @@ export default (props: Props) => {
 						Modifying <span style={{ textTransform: 'capitalize' }}>{repository}</span>'s
 						README On The <span style={{ textTransform: 'capitalize' }}>{branch}</span> Branch
 					</h4>
-					<Editor document={document} exit={() => setIsEditing(false)}/>
+					<Editor viewer={viewer} repository={repository} branch={branch} document={document}
+						token={props.token} exit={() => setIsEditing(false)} update={(ref: any) => {
+							// Updated object passed in here should be saved in state
+							console.log('Update succeeded!', ref)
+						}}
+					/>
 				</article>
 			) : (
 				<article style={{ margin: '0 0 1.45rem' }}>
@@ -231,5 +238,6 @@ export default (props: Props) => {
 		</div>
 	)
 }
+
 
 
