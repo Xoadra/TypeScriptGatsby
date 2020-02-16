@@ -41,7 +41,7 @@ export default (props: Props) => {
 	return (
 		<form onSubmit={(event: FormEvent) => {
 			event.preventDefault()
-			// Unfortunately, the GitHub API seems to lack a file update mutation
+			// Unfortunately, the GitHub API seems to lack a mutation for updating files
 		}}>
 			<nav>
 				<button disabled={!isPreview} onClick={() => setIsPreview(false)}>Modify</button>
@@ -59,7 +59,7 @@ export default (props: Props) => {
 			{isPreview ? (
 				<Document html={html}/>
 			) : (
-				<fieldset>
+				<fieldset style={{ border: 0 }}>
 					<textarea
 						style={{
 							background: 'powderblue', border: 0, resize: 'none', /* resize: 'vertical', */ width: '100%', padding: '1.45em', margin: '1.45rem 0'
@@ -70,7 +70,10 @@ export default (props: Props) => {
 						}}
 					/>
 					<input
-						value={message} placeholder="Enter commit message"
+						style={{
+							background: 'palegreen', border: 0, width: '100%', padding: '1.45em', margin: '-0.4em 0 0'
+						}}
+						value={message} placeholder="Enter your commit message here" required
 						onChange={(event: ChangeEvent<HTMLInputElement>) => {
 							event.preventDefault()
 							setMessage(event.target.value)
@@ -83,5 +86,6 @@ export default (props: Props) => {
 		</form>
 	)
 }
+
 
 
