@@ -27,6 +27,7 @@ export default (props: Props) => {
 	const [text, setText]: [string, Dispatch<string>] = useState<string>(props.document.object.text || '')
 	const [message, setMessage]: [string, Dispatch<string>] = useState<string>('')
 	const [isPreview, setIsPreview]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
+	const [isSubmitted, setIsSubmitted]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	console.log('Opening editor...', props.document)
 	useEffect(() => {
 		if (editor.current) {
@@ -40,8 +41,9 @@ export default (props: Props) => {
 		}
 	})
 	return (
-		<form onSubmit={async (event: FormEvent) => {
+		<form style={{ pointerEvents: isSubmitted ? 'none' : 'auto' }} onSubmit={async (event: FormEvent) => {
 			event.preventDefault()
+			setIsSubmitted(true)
 			// Will need changes in the future to allow nested file updates
 			const path: string = `contents/${props.document.name}`
 			const target: string = `${props.viewer.login}/${props.repository}`
@@ -57,12 +59,15 @@ export default (props: Props) => {
 				props.update(update)
 			} catch (error) {
 				console.error('File update failed!', error)
+			} finally {
+				setIsSubmitted(false)
 			}
 		}}>
 			<nav>
-				<button disabled={!isPreview} onClick={() => setIsPreview(false)}>Modify</button>
-				<button disabled={isPreview} onClick={async () => {
-					const raw: any = { data: { data: { repository: props.document } } }
+				<button type="button" disabled={!isPreview} onClick={() => setIsPreview(false)}>Modify</button>
+				<button type="button" disabled={isPreview} onClick={async () => {
+					const base: any = { object: { ...props.document.object, text } }
+					const raw: any = { data: { data: { repository: { ...props.document, ...base } } } }
 					try {
 						const document: AxiosResponse = await axios.post('/.netlify/functions/remark', raw)
 						setHtml(document.data.markdownRemark.html)
@@ -97,11 +102,10 @@ export default (props: Props) => {
 					/>
 				</fieldset>
 			)}
-			<button onClick={props.exit}>Back</button>
-			<button type="submit">Save</button>
+			<button type="button" onClick={props.exit}>Back</button>
+			<button type="submit" disabled={isSubmitted}>Save</button>
 		</form>
 	)
 }
-
 
 
