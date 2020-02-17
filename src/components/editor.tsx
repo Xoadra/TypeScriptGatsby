@@ -2,7 +2,7 @@
 
 
 
-import React, { RefObject, Dispatch, FormEvent, ChangeEvent, useRef, useState, useEffect } from 'react'
+import React, { RefObject, Dispatch, FormEvent, ChangeEvent, useRef, useState, useLayoutEffect } from 'react'
 import axios, { AxiosResponse } from 'axios'
 
 import Document from './document'
@@ -29,7 +29,7 @@ export default (props: Props) => {
 	const [isPreview, setIsPreview]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	const [isSubmitted, setIsSubmitted]: [boolean, Dispatch<boolean>] = useState<boolean>(false)
 	console.log('Opening editor...', props.document)
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (editor.current) {
 			// Alternative way to dynamically resize the textarea element
 			/* editor.current.style.height = `${0}px`
