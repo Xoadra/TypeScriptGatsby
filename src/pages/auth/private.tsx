@@ -134,9 +134,52 @@ export default (props: Props) => {
 						README On The <span style={{ textTransform: 'capitalize' }}>{branch}</span> Branch
 					</h4>
 					<Editor viewer={viewer} repository={repository} branch={branch} document={document}
-						token={props.token} exit={() => setIsEditing(false)} update={(ref: any) => {
-							// Updated object passed in here should be saved in state
-							console.log('Update succeeded!', ref, userRepos[repository].refs.nodes[branch])
+						token={props.token} exit={() => setIsEditing(false)} update={async (ref: any) => {
+							// Save the newly pushed update made to the specified branch into component state
+							// Text content of the updated file isn't included when using GitHub's REST API
+							const api: string = 'https://api.github.com/graphql'
+							const headers: object = { Authorization: `Bearer ${props.token}` }
+							const target = {
+								query: `query($repository: String!, $owner: String!, $qualifiedName: String!) {
+									repository(name: $repository, owner: $owner) {
+										ref(qualifiedName: $qualifiedName) {
+											name
+											target {
+												... on Commit {
+													authoredDate
+													message
+													tree {
+														...Level0
+													}
+												}
+											}
+										}
+									}
+								}
+								${fragments(5)}`,
+								variables: {
+									repository,
+									owner: viewer.login,
+									qualifiedName: `refs/heads/${branch}`
+								}
+							}
+							// Run another GitHub GraphQL API query to obtain the new repository branch info
+							try {
+								const update: AxiosResponse = await axios.post(api, target, { headers })
+								console.log('Update succeeded!', ref, update)
+								const copiedRepos: any = { ...userRepos }
+								const staleBranch: any = { ...copiedRepos[repository].refs.nodes[branch] }
+								const modifiedBranch: any = { ...update.data.data.repository.ref }
+								copiedRepos[repository].refs.nodes[branch] = modifiedBranch
+								console.log('Branch updated!', staleBranch, modifiedBranch)
+								setUserRepos(copiedRepos)
+							} catch (issue) {
+								setError(issue)
+								console.error('Failed to fetch updated content:', issue)
+							} finally {
+								// Exit editor once the updated file content is acquired and saved in state
+								setIsEditing(false)
+							}
 						}}
 					/>
 				</article>
@@ -238,6 +281,5 @@ export default (props: Props) => {
 		</div>
 	)
 }
-
 
 

@@ -16,7 +16,7 @@ interface Props {
 	document: any
 	token: string | null
 	exit(): void
-	update(ref: any): void
+	update(ref: any): Promise<void>
 }
 
 
@@ -56,7 +56,7 @@ export default (props: Props) => {
 			console.log('Submitting file content update...', mutation)
 			try {
 				const update: AxiosResponse = await axios.put(url, mutation, { headers })
-				props.update(update)
+				await props.update(update)
 			} catch (error) {
 				console.error('File update failed!', error)
 			} finally {
