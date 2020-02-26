@@ -50,6 +50,25 @@ export default (props: Props) => {
 		}
 		${level + 1 >= depth ? '' : fragments(depth, level + 1)}`
 	)
+	const transform = async (head: any): Promise<void> => {
+		const readme: any = head.target.tree.entries.find((entry: any) => {
+			return /^(README){1}((\.){1}(\D)+)$/i.test(entry.name)
+		})
+		if (readme) {
+			setIsLoading(true)
+			const blob: any = { data: { data: { repository: readme } } }
+			setDocument(blob.data.data.repository)
+			try {
+				const markdown: AxiosResponse = await axios.post('/.netlify/functions/remark', blob)
+				setHtml(markdown.data.markdownRemark.html)
+			} catch (issue) {
+				setError(issue)
+				console.error('Error trying to transform README file: ', issue)
+			} finally {
+				setIsLoading(false)
+			}
+		}
+	}
 	const filter: string = 'first: 100, isFork: false, privacy: PUBLIC, ownerAffiliations: OWNER'
 	const query = {
 		query: `query${props.isAuthenticated ? '' : '($username: String!)'} {
@@ -173,6 +192,7 @@ export default (props: Props) => {
 								copiedRepos[repository].refs.nodes[branch] = modifiedBranch
 								console.log('Branch updated!', staleBranch, modifiedBranch)
 								setUserRepos(copiedRepos)
+								transform(modifiedBranch)
 							} catch (issue) {
 								setError(issue)
 								console.error('Failed to fetch updated content:', issue)
@@ -214,23 +234,7 @@ export default (props: Props) => {
 					setIsSubmitted(true)
 					const head: any = userRepos[repository].refs.nodes[branch]
 					console.log(`Viewing branch ${branch} on repository ${repository}: `, head)
-					const readme: any = head.target.tree.entries.find((entry: any) => {
-						return /^(README){1}((\.){1}(\D)+)$/i.test(entry.name)
-					})
-					if (readme) {
-						setIsLoading(true)
-						const blob: any = { data: { data: { repository: readme } } }
-						setDocument(blob.data.data.repository)
-						try {
-							const markdown: AxiosResponse = await axios.post('/.netlify/functions/remark', blob)
-							setHtml(markdown.data.markdownRemark.html)
-						} catch (issue) {
-							setError(issue)
-							console.error('Error trying to transform README file: ', issue)
-						} finally {
-							setIsLoading(false)
-						}
-					}
+					transform(head)
 				}}>
 					<h4>Display A GitHub Repository's README Document!</h4>
 					{!userRepos ? error ? (
